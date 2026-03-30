@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Study: API Docs Portal Redesign | Linga Raj M</title>
+    <link rel="stylesheet" href="../style.css"> 
+</head>
+<body>
+    
+    <div class="main-layout">
+        
+        <div class="sidebar">
+            <h3 class="logo" style="padding-left: 20px;">TW Portfolio</h3>
+            
+            <h3>Home</h3>
+            <a href="../index.html" class="nav-link">About Me & Toolkit</a>
+
+            <h3>📂 Case Studies</h3>
+            <a href="./index.html" class="nav-link active">1. API Docs Portal Redesign</a>
+            <a href="../migration-project-ia/index.html" class="nav-link">2. Confluence to MkDocs Migration</a>
+            <a href="../tutorials-ux-writing/index.html" class="nav-link">3. Security Software Tutorials</a>
+            
+            <h3>Resources</h3>
+            <a href="../resume.html" class="nav-link">📄 Resume</a>
+            <a href="mailto:lingaraj501@gmail.com" class="nav-link">📧 Contact</a>
+        </div>
+
+        <div class="content-wrapper">
+            
+            <div class="navbar">
+                <div class="breadcrumbs">
+                    <a href="../index.html">Home</a> <span>/</span> <a href="../index.html#projects">Case Studies</a> <span>/</span> API Docs Portal Redesign
+                </div>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search documentation...">
+                </div>
+            </div>
+
+            <div class="main-content-area">
+                <div class="main-content">
+                    
+                    <h1 id="top">🎯 Case Study: API Documentation Portal Redesign (Fintech Service)</h1>
+                    
+                    <p class="intro-details">
+                        **Project Focus:** Information Architecture, Developer Experience (DX), Docs-as-Code Implementation, OpenAPI/Redocly.
+                    </p>
+
+                    <h2 id="overview">1. Project Overview: The Business Problem</h2>
+
+                    <p>The documentation for our internal payment processing REST API was housed in fragmented systems (Confluence, Jira tickets, and outdated PDFs). This lack of a single source of truth created significant friction for new integrators.</p>
+                    
+                    <ul>
+                        <li><strong>Observed Problem:</strong> New developer integration time averaged **105 minutes** due to excessive searching and reliance on tribal knowledge.</li>
+                        <li><strong>Business Goal:</strong> Consolidate documentation into a modern, searchable, and collaborative platform to improve the Developer Experience (DX).</li>
+                        <li><strong>My Role:</strong> Lead Documentation Strategist. I was responsible for toolchain selection, information architecture design, content auditing, and establishing the Git workflow.</li>
+                    </ul>
+
+                    <h2 id="strategy">2. Strategic Solution: Information Architecture</h2>
+
+                    <p>To ensure content scalability and usability, I restructured the entire API documentation using the industry-standard **Diátaxis framework** (Reference, Tutorial, Explanation, How-to Guides).</p>
+                    
+                    <p><strong>Key IA Decisions:</strong></p>
+                    <ol>
+                        <li><strong>Reference (Generated):</strong> Used **Redocly** to automatically generate the full API reference directly from the OpenAPI Specification file, ensuring 100% accuracy.</li>
+                        <li><strong>Tutorials (Goal-Oriented):</strong> Developed 3 new tutorials (e.g., "Set up Webhooks," "First Authorization Call") to guide developers through the primary integration paths.</li>
+                        <li><strong>Explanation (Conceptual):</strong> Created clear conceptual guides for complex topics like OAuth 2.0 flow, idempotency, and error handling codes.</li>
+                    </ol>
+                    <p>This structure reduced cognitive load and allowed developers to find the exact content type they needed instantly.</p>
+
+                    <h2 id="technical-impl">3. Technical Implementation: Docs-as-Code Workflow</h2>
+
+                    <p>The core of the solution was moving to a modern Docs-as-Code workflow, demonstrating efficiency and collaboration with Engineering teams.</p>
+                    
+                    <p><strong>Toolchain:</strong></p>
+                    <ul>
+                        <li><strong>Source:</strong> Single, version-controlled **OpenAPI 3.0 YAML** file.</li>
+                        <li><strong>Build:</strong> **Redocly** was used to render the visually appealing, side-navigational reference documentation.</li>
+                        <li><strong>Version Control:</strong> Content is managed via **Git/GitHub**. Developers submit Pull Requests against the YAML source, which triggers automated build checks.</li>
+                        <li><strong>Quality Assurance:</strong> Implemented a **Vale Linter** check in the CI/CD pipeline to enforce style guide rules (e.g., Google Developer Style) on all conceptual content before merging.</li>
+                    </ul>
+
+                    <h2 id="impact">4. Measurable Impact & Results</h2>
+
+                    <p>The documentation redesign resulted in direct, measurable improvements to both developer experience and internal operational efficiency. **This demonstrates the ROI of strategic documentation.**</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Before Project</th>
+                                <th>After Project</th>
+                                <th>Improvement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>**Developer Time-to-Integration**</td>
+                                <td>105 minutes</td>
+                                <td>63 minutes</td>
+                                <td><span style="color: #00897b; font-weight: bold;">40% Reduction</span></td>
+                            </tr>
+                            <tr>
+                                <td>**Monthly Support Tickets (Setup)**</td>
+                                <td>185</td>
+                                <td>143</td>
+                                <td><span style="color: #00897b; font-weight: bold;">22.5% Decrease</span></td>
+                            </tr>
+                            <tr>
+                                <td>**Content Update Cycle**</td>
+                                <td>Manual, 4 hours</td>
+                                <td>Automated (CI/CD), 5 minutes</td>
+                                <td><span style="color: #00897b; font-weight: bold;">98% Faster</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <hr>
+
+                    <blockquote>
+                        **Conclusion:** This project validated that investing in strategic documentation and modern toolchains directly translates into reduced support costs and faster product adoption.
+                    </blockquote>
+                    
+                    <p>
+                        **🔗 View the Documentation Source:** [Link to the dedicated GitHub repository for this sample]
+                    </p>
+
+                </div>
+            </div>
+
+            <div class="toc-sidebar">
+                <h4>On This Page</h4>
+                <a href="#overview" class="toc-link">1. Project Overview</a>
+                <a href="#strategy" class="toc-link">2. Strategic Solution (IA)</a>
+                <a href="#technical-impl" class="toc-link">3. Technical Implementation</a>
+                <a href="#impact" class="toc-link">4. Measurable Impact & Results</a>
+            </div>
+            
+        </div>
+
+    </div>
+    
+    <footer class="footer">
+        © 2025 Linga Raj M. All rights reserved. | Built with Docs-as-Code Philosophy | <a href="https://github.com/Lingaraj-TW/Technical-Writing-Portfolio" target="_blank">View Source on GitHub</a>
+    </footer>
+
+</body>
+</html>
