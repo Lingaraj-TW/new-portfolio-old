@@ -1,76 +1,48 @@
-# ✍️ Linga Raj M | Senior Associate - Technical Writer
+# ProDoc
 
-1
- 
-## 🌟8+ Years of Driving User Documentation Excellence in SaaS and healthcare documentation.
-=======
+Documentation as a product: interactive docs with **section-level feedback** and an **admin triage** dashboard for product teams.
 
-## 🌟 7+ Years of Driving User Documentation Excellence
->>>>>>> f495305 (first commit)
+## Features (MVP)
 
-**Location:** Chennai, India | **Status:** Actively Seeking New Opportunities / Open to Remote Roles
+- Public documentation site (MDX, heading anchors for section targeting)
+- Feedback widget: helpful / not helpful + optional message, tied to page and section
+- Supabase-backed storage with RLS (anonymous submit, authenticated admin)
+- Admin UI at `/admin` for listing and updating feedback status
 
-I am an experienced Technical Writer and Content Strategist specializing in building scalable, user-centric documentation ecosystems for complex technical products (APIs, Cloud Services, and Enterprise Softwares). My focus is on exploring and learning modern Docs-as-Code workflows to enhance development speed, improve content discoverability, and reduce support burden.
+## Stack
 
-<<<<<<< HEAD
- ---
-=======
----
->>>>>>> f495305 (first commit)
+- [Next.js](https://nextjs.org/) (App Router) + TypeScript + Tailwind CSS
+- [Supabase](https://supabase.com/) (Postgres, Auth)
 
-## 🛠️ Core Proficiencies & Toolkit
+## Local development
 
-| Category | Skills & Tools |
-| :--- | :--- |
-<<<<<<< HEAD
-| **Writing & Strategy** | Information Architecture (IA), Content Strategy, Copyediting, UX Writing, Style Guide Creation (Google/Microsoft Style). |
-| **Technical Documentation** | REST API Documentation, SDK Guides, Configuration/Installation Manuals, Release Notes, Tutorials, Cloud/DevOps Documentation. |
-| **Docs-as-Code** | Git, GitHub/GitLab, Markdown, Static Site Generators (Docusarus), YAML/JSON. |
-| **Tooling & Standards** | OpenAPI/Swagger, VS Code, Document360, Azure Devops/JIRA/Confluence. |
-| **Domain Expertise** | Maintenance, Logistics, ERP, Enterprise SaaS, Health Care (HealthTech) |
+1. **Clone and install**
 
----
- 
-## 🎯 Specialization
-• API Documentation
-• Product Documentation
-• Knowledge Bases
-• Documentation Strategy & Governance
-• Docs-as-Code
-=======
-| **Writing & Strategy** | Information Architecture (IA), Content Strategy, Copyediting, UX Writing, Style Guide Creation (Google/Microsoft Style), Diátaxis Framework. |
-| **Technical Documentation** | REST/GraphQL API Documentation, SDK Guides, Integrator Manuals, Release Notes, Tutorials, Cloud/DevOps Documentation. |
-| **Docs-as-Code** | Git, GitHub/GitLab, Markdown, Static Site Generators (Docusarus, Hugo), YAML/JSON. |
-| **Tooling & Standards** | OpenAPI/Swagger, Redocly, Vale (Linting), VS Code, Azure Devops/JIRA/Confluence. |
-| **Domain Expertise** | [e.g., Miantenance, Logistics, ERP, Enterprise SaaS, Health Care (HealthTech) etc.] |
+   ```bash
+   npm install
+   ```
 
----
+2. **Environment**
 
-## 📂 Featured Case Studies & Projects
+   Copy `.env.example` to `.env.local` and set your Supabase project URL and keys. Apply the SQL in `supabase/migrations/` in the Supabase SQL editor (or use the Supabase CLI).
 
-These are not just documents—they are comprehensive projects that highlight my strategic contributions, technical implementation, and measurable impact.
+3. **Run**
 
-| Project Name | Focus & Technical Stack | Measurable Impact | Link to Project Repo |
-| :--- | :--- | :--- | :--- |
-| **1. API Docs Portal Redesign** | REST API Reference, Redocly, Information Architecture overhaul. | **Reduced 'Time to First API Call' by 40%** for new developers. | [Repo: `api-docs-case-study`](./api-docs-case-study/README.md) |
-| **2. Confluence to MkDocs Migration** | Docs-as-Code implementation, CI/CD pipeline setup (GitHub Actions), Migration strategy. | **Cut publishing time from 3 hours to 5 minutes** per update cycle. | [Repo: `migration-project-ia`](./migration-project-ia/README.md) |
-| **3. Security Software Tutorial Series** | End-to-end user journey tutorials, Simplified complex concepts, UX Writing. | **Decreased initial setup-related support tickets by 22%**. | [Repo: `tutorials-ux-writing`](./tutorials-ux-writing/README.md) |
->>>>>>> f495305 (first commit)
+   ```bash
+   npm run dev
+   ```
 
-***
+   Open [http://localhost:3000](http://localhost:3000).
 
-## 🌐 Let's Connect
+4. **Admin**
 
-<<<<<<< HEAD
-* **Portfolio Live Site:** https://lingaraj-tw.github.io/Technical-Writing-Portfolio/
-* **LinkedIn:** https://www.linkedin.com/in/lingarajm/
-* **Email:** mailto:lingaraj501@gmail.com
-=======
-* **Portfolio Website:** https://lingaraj-tw.github.io/Technical-Writing-Portfolio/
-* **LinkedIn:** https://www.linkedin.com/in/lingarajm/
-* **Email:** lingaraj501@gmail.com
->>>>>>> f495305 (first commit)
+   Create a user in Supabase Auth (or sign up if enabled). Grant admin by setting `app_metadata.role` to `admin` for that user (see `supabase/migrations` notes), then sign in at `/admin/login`.
 
----
+## Deployment
 
-> 🚀 **"Great documentation doesn't just inform; it drives adoption and reduces churn."** - Linga Raj M
+- **App:** Deploy to [Vercel](https://vercel.com/) (or any Node host). Set the same env vars as `.env.example`.
+- **Database:** Use your Supabase project; run migrations once.
+
+## License
+
+See [LICENSE](LICENSE).
