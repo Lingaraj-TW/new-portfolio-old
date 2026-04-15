@@ -1,0 +1,37 @@
+---
+title: Sample release notes
+description: A concise template for regulated releases with customer-facing clarity.
+nav_order: 3
+authors:
+  - Linga Raj M
+team: Product Operations
+---
+
+# Sample release notes
+
+## Release 2026.04.0 · 12 April 2026
+
+### Highlights
+
+- Introduces batch export for claims reconciliation dashboards.
+- Improves accessibility for keyboard navigation across modals.
+- Resolves intermittent timeout errors on the eligibility lookup service.
+
+### Customer impact
+
+Administrators can now schedule exports without staying logged in for the entire job. Support teams should expect fewer escalations tied to stuck exports.
+
+### Upgrade notes
+
+1. Apply database migration `20260412_claims_export.sql` during the maintenance window.
+2. Restart the worker service so new queue consumers pick up the export job type.
+3. Verify SMTP relay credentials remain valid—export completion emails reuse the existing template.
+
+### Known issues
+
+- Export jobs larger than 250k rows require splitting; automation is planned for 2026.05.0.
+- Safari 16 may require a hard refresh to load updated modal focus traps.
+
+### Deprecations
+
+- Legacy `/v0/exports` endpoint will return `410 Gone` after **30 June 2026**. Migrate to `/v1/exports`.

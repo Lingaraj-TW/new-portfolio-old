@@ -1,0 +1,33 @@
+/**
+ * Minimal theming for the ProDoc demo.
+ * (Infima is the base CSS framework bundled by Docusaurus classic.)
+ */
+
+:root {
+  --ifm-color-primary: #18181b; /* zinc-900 */
+  --ifm-color-primary-dark: #09090b;
+  --ifm-color-primary-darker: #09090b;
+  --ifm-color-primary-darkest: #000000;
+  --ifm-color-primary-light: #27272a;
+  --ifm-color-primary-lighter: #3f3f46;
+  --ifm-color-primary-lightest: #52525b;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] {
+  --ifm-color-primary: #e4e4e7; /* zinc-200 */
+  --ifm-color-primary-dark: #d4d4d8;
+  --ifm-color-primary-darker: #a1a1aa;
+  --ifm-color-primary-darkest: #71717a;
+  --ifm-color-primary-light: #f4f4f5;
+  --ifm-color-primary-lighter: #fafafa;
+  --ifm-color-primary-lightest: #ffffff;
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.08);
+}
+
+/* Give the docs a little more “portfolio” feel. */
+.theme-doc-markdown h1 {
+  letter-spacing: -0.02em;
+}
+

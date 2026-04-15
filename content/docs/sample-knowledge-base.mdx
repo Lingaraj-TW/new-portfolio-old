@@ -1,0 +1,35 @@
+---
+title: Sample knowledge base article
+description: Self-service pattern for recurring operational questions.
+nav_order: 4
+authors:
+  - Linga Raj M
+team: Customer Success
+---
+
+# Sample knowledge base article
+
+## Symptom
+
+Users report they cannot see newly assigned tasks inside the operations console even after refreshing the browser.
+
+## Root causes
+
+1. **Stale CDN cache** – assets older than five minutes can hide UI toggles introduced in the latest sprint.
+2. **Insufficient role mapping** – the `operations.viewer` role must be paired with the `tasks.read` permission set.
+3. **Workspace mismatch** – tasks created in Workspace B do not surface when the console is pinned to Workspace A.
+
+## Resolution steps
+
+1. Ask the user to hard refresh (`Cmd+Shift+R` / `Ctrl+Shift+R`).
+2. In the admin console, open **Settings → Access → Roles** and confirm both role and permission set are applied.
+3. Verify the workspace selector in the console header matches the workspace referenced in the task URL.
+
+## Verification
+
+- Open the task permalink while impersonating the user; the task drawer should load within two seconds.
+- Capture a HAR file if latency persists and attach it to the engineering ticket.
+
+## Prevention
+
+Document workspace naming conventions during onboarding and add a banner when multiple workspaces are active.
