@@ -37,6 +37,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# gitnexus (local knowledge graph)
+/.gitnexus
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.gitnexus
