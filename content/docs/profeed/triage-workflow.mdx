@@ -1,0 +1,77 @@
+---
+title: Triage workflow
+description: From reader feedback widget to ProFeed triage, status updates, and attachments.
+nav_order: 2
+authors:
+  - Linga Raj M
+team: ProFeed
+---
+
+# Triage workflow
+
+ProFeed closes the gap between reader confusion and doc fixes. This guide walks through the full workflow on this demo site.
+
+## 1. Reader submits feedback
+
+On any `/prodoc/...` page, the floating **Feedback** widget captures:
+
+| Field | Description |
+| ----- | ----------- |
+| `page_path` | The docs URL (for example `/prodoc/tutorials/setup-prodoc`) |
+| `section_anchor` | Optional heading ID the reader selected |
+| Sentiment | Helpful / not helpful and/or star rating |
+| Message | Free-text comment (supports rich text when enabled) |
+| Tags | Author and team chips for routing |
+| Highlights | Text selections pinned to the page |
+| Attachments | Screenshots, PDFs, or text files (requires service role) |
+
+Submissions POST to `/api/feedback` and persist in Supabase.
+
+## 2. Triage in ProFeed admin
+
+Open [/profeed](/profeed) to review the queue. Sign in as **admin** to change status; other logged-in users and anonymous visitors can read feedback but cannot edit docs.
+
+1. **Filter** by status, page, team, writer, or star rating
+2. Open **Details** on a row (or go to `/profeed/feedback/{id}`) for the full message, highlights, voice transcript, and attachments
+3. Use **View live doc** to open the published page at the reported section anchor (available to all users)
+4. Use **Edit on GitHub** to open the MDX source in GitHub's editor — **enabled for admin only**; disabled for customer and anonymous users
+5. **Update status** — `open`, `triaged`, or `closed` (admin only)
+6. **Download attachments** via signed URLs when configured
+
+Configure GitHub edit links in `.env.local`:
+
+```env
+NEXT_PUBLIC_GITHUB_DOCS_REPO=lingaraj-tw/prodoc
+NEXT_PUBLIC_GITHUB_DOCS_BRANCH=main
+```
+
+## 3. Customer portal (optional)
+
+[/profeed/portal](/profeed/portal/login) lets stakeholders view feedback cards. **Edit on GitHub** remains disabled unless signed in as admin.
+
+## 4. Close the loop
+
+When a doc issue is confirmed (admin workflow):
+
+1. Open the feedback **detail** page and click **Edit on GitHub**
+2. Update the MDX file in the repo (for example `content/docs/profeed/overview.mdx`)
+3. Merge and deploy
+4. Mark the ProFeed item **closed**
+5. Monitor [ProInsights](/proinsights) for sentiment improvement on that page
+
+## Configuration requirements
+
+| Capability | Requirement |
+| ---------- | ----------- |
+| Read/write feedback | `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+| Anonymous ProFeed demo read | Migration `003_profeed_anon_read.sql` |
+| Rich feedback (HTML, attachments) | Migration `004_profeed_rich_feedback.sql` |
+| Attachment uploads | `SUPABASE_SERVICE_ROLE_KEY` (server-only) |
+| Cross-origin docs | `PRODOC_ALLOWED_ORIGINS` for CORS |
+| GitHub edit links | `NEXT_PUBLIC_GITHUB_DOCS_REPO` + `NEXT_PUBLIC_GITHUB_DOCS_BRANCH` |
+
+See [Enable ProFeed feedback](/prodoc/prodoc/enable-profeed-feedback) for setup steps.
+
+## API reference
+
+Feedback endpoints are documented in [APIs & Integrations](/prodoc/apis/overview).

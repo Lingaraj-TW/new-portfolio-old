@@ -1,8 +1,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { redirect } from "next/navigation";
 
-import { ProInsightsCharts } from "@/components/ProInsightsCharts";
+import { ProInsightsCharts } from "@/components/proinsights/ProInsightsCharts";
 
 export const dynamic = "force-dynamic";
 
@@ -52,31 +51,21 @@ function toChartKV(entries: [string, number][]) {
 export default async function ProInsightsPage() {
   if (!isSupabaseConfigured()) {
     return (
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Supabase is not configured. Add keys to <code className="font-mono">.env.local</code>{" "}
-        and restart the dev server.
+      <p className="text-sm text-muted-foreground">
+        Supabase is not configured. Add keys to{" "}
+        <code className="font-mono">.env.local</code> and restart the dev
+        server.
       </p>
     );
   }
 
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const role = user?.app_metadata?.role;
-  if (!user) {
-    redirect("/profeed/login");
-  }
-  if (role !== "admin" && role !== "customer") {
-    redirect("/profeed/login?error=not_admin");
-  }
 
   const { data, error } = await supabase
     .from("feedback")
     .select(
       `id, page_path, section_anchor, rating, star_rating, tagged_author, tagged_team, highlights, status, created_at,
-       feedback_attachments ( id )`,
+ feedback_attachments ( id )`,
     )
     .order("created_at", { ascending: false })
     .limit(1000);
@@ -99,7 +88,7 @@ export default async function ProInsightsPage() {
     return (
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">ProInsights</h1>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-2 text-sm text-muted-foreground">
           No feedback data yet. Submit feedback from ProDoc and check back here.
         </p>
       </div>
@@ -139,12 +128,19 @@ export default async function ProInsightsPage() {
     const author = clampNonEmpty(r.tagged_author, "Unspecified");
     byAuthor.set(author, (byAuthor.get(author) || 0) + 1);
 
-    byDay.set(toDayKey(r.created_at), (byDay.get(toDayKey(r.created_at)) || 0) + 1);
+    byDay.set(
+      toDayKey(r.created_at),
+      (byDay.get(toDayKey(r.created_at)) || 0) + 1,
+    );
 
     if (r.rating === 1) helpful += 1;
     if (r.rating === -1) notHelpful += 1;
 
-    if (typeof r.star_rating === "number" && r.star_rating >= 1 && r.star_rating <= 5) {
+    if (
+      typeof r.star_rating === "number" &&
+      r.star_rating >= 1 &&
+      r.star_rating <= 5
+    ) {
       starsCount += 1;
       starsSum += r.star_rating;
       starsDist.set(r.star_rating, (starsDist.get(r.star_rating) || 0) + 1);
@@ -154,7 +150,10 @@ export default async function ProInsightsPage() {
 
     const hl = countHighlights(r.highlights);
     if (hl > 0) {
-      highlightsByPage.set(r.page_path, (highlightsByPage.get(r.page_path) || 0) + hl);
+      highlightsByPage.set(
+        r.page_path,
+        (highlightsByPage.get(r.page_path) || 0) + hl,
+      );
     }
   }
 
@@ -172,57 +171,72 @@ export default async function ProInsightsPage() {
   const topTeams = topN(byTeam, 6);
   const topAuthors = topN(byAuthor, 6);
   const topHighlights = topN(highlightsByPage, 6);
-  const daily = [...byDay.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-14);
+  const daily = [...byDay.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .slice(-14);
   const statusChart = [
     { name: "open", value: byStatus.get("open") || 0 },
     { name: "triaged", value: byStatus.get("triaged") || 0 },
     { name: "closed", value: byStatus.get("closed") || 0 },
   ].filter((s) => s.value > 0);
   const dailyChart = daily.map(([day, count]) => ({ day, count }));
-  const starsChart = [1, 2, 3, 4, 5].map((stars) => ({ stars, count: starsDist.get(stars) || 0 }));
+  const starsChart = [1, 2, 3, 4, 5].map((stars) => ({
+    stars,
+    count: starsDist.get(stars) || 0,
+  }));
 
   return (
     <div>
       <h1 className="text-2xl font-semibold tracking-tight">ProInsights</h1>
-      <p className="mt-2 max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">
-        Analytics overview for documentation feedback captured in ProFeed. (MVP aggregates the
-        newest {total} items.)
+      <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+        Analytics overview for documentation feedback captured in ProFeed. (MVP
+        aggregates the newest {total} items.)
       </p>
 
       <div className="mt-8 grid gap-4 md:grid-cols-4">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+        <div className="rounded-2xl border border-border bg-card p-5 ">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Total feedback
           </p>
           <p className="mt-3 text-3xl font-semibold tracking-tight">{total}</p>
-          <p className="mt-2 text-xs text-zinc-500">Last 1000 (or fewer)</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Last 1000 (or fewer)
+          </p>
         </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+        <div className="rounded-2xl border border-border bg-card p-5 ">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Average stars
           </p>
           <p className="mt-3 text-3xl font-semibold tracking-tight">
             {avgStars === null ? "—" : avgStars.toFixed(2)}
           </p>
-          <p className="mt-2 text-xs text-zinc-500">{starsCount ? `${starsCount} rated` : "No star ratings yet"}</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {starsCount ? `${starsCount} rated` : "No star ratings yet"}
+          </p>
         </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+        <div className="rounded-2xl border border-border bg-card p-5 ">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Helpfulness
           </p>
           <p className="mt-3 text-3xl font-semibold tracking-tight">
             {helpfulPct === null ? "—" : fmtPct(helpfulPct)}
           </p>
-          <p className="mt-2 text-xs text-zinc-500">
-            {helpfulTotal ? `${helpful} helpful · ${notHelpful} not helpful` : "No helpful votes yet"}
+          <p className="mt-2 text-xs text-muted-foreground">
+            {helpfulTotal
+              ? `${helpful} helpful · ${notHelpful} not helpful`
+              : "No helpful votes yet"}
           </p>
         </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+        <div className="rounded-2xl border border-border bg-card p-5 ">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Attachments
           </p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight">{attachments}</p>
-          <p className="mt-2 text-xs text-zinc-500">Files uploaded with feedback</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight">
+            {attachments}
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Files uploaded with feedback
+          </p>
         </div>
       </div>
 
@@ -230,16 +244,22 @@ export default async function ProInsightsPage() {
         {statusCards.map((c) => (
           <div
             key={c.label}
-            className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950"
+            className="rounded-2xl border border-border bg-card p-5 "
           >
-            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{c.label}</p>
-            <p className="mt-2 text-2xl font-semibold tracking-tight">{c.value}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {c.label}
+            </p>
+            <p className="mt-2 text-2xl font-semibold tracking-tight">
+              {c.value}
+            </p>
           </div>
         ))}
       </div>
 
       <ProInsightsCharts
-        status={statusChart.length ? statusChart : [{ name: "other", value: total }]}
+        status={
+          statusChart.length ? statusChart : [{ name: "other", value: total }]
+        }
         daily={dailyChart}
         topPages={toChartKV(topPages)}
         topTeams={toChartKV(topTeams)}
@@ -249,4 +269,3 @@ export default async function ProInsightsPage() {
     </div>
   );
 }
-

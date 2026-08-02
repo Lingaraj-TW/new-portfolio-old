@@ -1,0 +1,52 @@
+---
+title: Dashboard guide
+description: Read ProInsights charts, page-level signals, and how to act on trends.
+nav_order: 2
+authors:
+  - Linga Raj M
+team: ProInsights
+---
+
+# Dashboard guide
+
+ProInsights transforms ProFeed data into prioritization signals. Open [/proinsights](/proinsights) to explore the dashboard.
+
+## Dashboard sections
+
+### Overview metrics
+
+Top-line counts summarize feedback volume, helpful vs not helpful ratio, and average star ratings across all doc pages. Use these to track whether doc improvements are moving the needle over time.
+
+### Top pages
+
+A ranked list of `/prodoc/...` paths by feedback volume. Pages with high traffic **and** high negative sentiment are your highest-priority rewrite candidates.
+
+### Sentiment breakdown
+
+Charts show helpful vs not helpful distribution. A page with mostly "not helpful" votes on a specific tutorial step often indicates a missing prerequisite or unclear instruction — cross-reference the `section_anchor` values in ProFeed triage.
+
+### Star ratings
+
+When readers submit star ratings, aggregate scores highlight pages that are "good enough" vs consistently frustrating. Pair low stars with ProFeed comments for context.
+
+### Status workflow
+
+If triage statuses are set in ProFeed (open, in progress, resolved), ProInsights surfaces backlog size so doc teams can balance new issues against unresolved ones.
+
+## How to act on insights
+
+1. **Identify** — sort top pages by negative sentiment
+2. **Investigate** — open matching items in [ProFeed](/profeed); read section anchors and highlights
+3. **Fix** — update MDX in `content/docs/...`
+4. **Verify** — after deploy, watch the page's sentiment trend over the next feedback cycle
+5. **Document** — add a case study to [Insights](/prodoc/insights/overview) when a measurable improvement occurs
+
+## Demo data
+
+When Supabase is not configured, ProInsights may show sample chart data so the UI remains explorable. Connect real Supabase credentials to see live feedback aggregation.
+
+## Related guides
+
+- [Analyze with ProInsights](/prodoc/tutorials/analyze-with-proinsights)
+- [Improve docs using insights](/prodoc/tutorials/improve-docs-using-insights)
+- [End-to-end loop](/prodoc/tutorials/end-to-end-loop)

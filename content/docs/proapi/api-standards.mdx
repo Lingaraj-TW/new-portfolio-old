@@ -1,0 +1,73 @@
+---
+title: API standards
+description: Naming conventions, error models, pagination, and design patterns for ProAPI services.
+nav_order: 4
+authors: [Linga Raj M]
+team: ProAPI
+tags: [proapi, standards, rest, design]
+last_updated: March 2026
+---
+
+# API standards
+
+Consistent API design reduces integration friction and support load. ProAPI standards apply to all services registered in the [API catalog](/prodoc/proapi/api-catalog) and reviewed through [API governance](/prodoc/proapi/api-governance).
+
+## Naming conventions
+
+| Element | Convention | Example |
+| ------- | ---------- | ------- |
+| Base path | Lowercase, hyphenated | `/api/feedback` |
+| Resources | Plural nouns | `/api/feedback/{id}` |
+| Actions | POST sub-resources | `/api/feedback/{id}/attachments` |
+| Query params | snake_case | `?page_path=/prodoc/intro` |
+
+## Error model
+
+All APIs return a consistent error envelope:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "page_path is required",
+    "details": [{ "field": "page_path", "reason": "missing" }]
+  }
+}
+```
+
+| HTTP status | Usage |
+| ----------- | ----- |
+| 400 | Client validation failure |
+| 401 | Missing or invalid credentials |
+| 403 | Authenticated but not authorized |
+| 404 | Resource not found |
+| 429 | Rate limit exceeded |
+| 500 | Unexpected server error |
+
+<Note>
+Document every error code in the MDX reference page. Undocumented errors drive [ProFeed](/prodoc/profeed/overview) volume on API troubleshooting pages.
+</Note>
+
+## Pagination and filtering
+
+List endpoints support cursor-based pagination:
+
+```text
+GET /api/feedback?cursor=abc123&limit=50&status=open
+```
+
+Response includes `next_cursor` and `has_more`. Offset pagination is discouraged for large datasets.
+
+## Idempotency
+
+Mutating endpoints that create billable or side-effect resources accept an `Idempotency-Key` header. Document key TTL and replay behavior in each service's reference guide.
+
+<Collapse title="OpenAPI documentation requirements">
+Every GA API publishes an OpenAPI 3.1 spec with examples for success and error responses. Specs link from catalog entries and render in ProDoc interactive blocks.
+</Collapse>
+
+## Related guides
+
+- [Authentication standards](/prodoc/proapi/authentication-standards)
+- [Versioning strategy](/prodoc/proapi/versioning-strategy)
+- [ProAPI overview](/prodoc/proapi/overview)

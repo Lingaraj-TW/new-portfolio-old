@@ -1,0 +1,44 @@
+---
+title: Insights
+description: Public insights, patterns, and case studies driven by ProInsights.
+nav_order: 1
+authors:
+  - Linga Raj M
+team: ProInsights
+---
+
+# Insights (ProInsights public layer)
+
+This section publishes patterns and case studies from the documentation intelligence loop.
+
+## Case study: Section anchors reduced vague feedback
+
+### Situation
+
+Early ProFeed submissions on tutorial pages often said "this is confusing" without specifying which step failed. Triage time averaged 15 minutes per ticket because admins had to guess the problem area.
+
+### Change
+
+1. Enabled section-anchor selection in the feedback widget (heading IDs from `rehype-slug`)
+2. Updated tutorial pages with clearer heading structure — one concept per `##` section
+3. Added a sidebar note on each tutorial: "Select the section you're commenting on"
+
+### Result
+
+- 70% of new submissions included a `section_anchor` within two weeks
+- Triage time dropped to under 5 minutes — admins opened the exact MDX section immediately
+- ProInsights top-section report showed **Verify** and **Configuration checklist** as recurring pain points, enabling targeted rewrites
+
+### Takeaway
+
+Structured headings plus anchor-aware feedback turns generic complaints into actionable edit requests. The fix was IA and widget UX — not more prose.
+
+---
+
+## More insight topics (coming)
+
+- Most confusing API sections across the doc set
+- Top user pain points by product area
+- Before/after sentiment charts after doc rewrites
+
+See [Dashboard guide](/prodoc/proinsights/dashboard-guide) and [Improve docs using insights](/prodoc/tutorials/improve-docs-using-insights) to generate your own case studies.

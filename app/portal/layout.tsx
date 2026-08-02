@@ -1,41 +1,44 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { PortalLogoutButton } from "@/components/PortalLogoutButton";
+import { PortalLogoutButton } from "@/components/profeed/portal/PortalLogoutButton";
+import { getProdocEntryHref } from "@/lib/prodoc-urls";
 
 export default function PortalLayout({ children }: { children: ReactNode }) {
+  const docsHref = getProdocEntryHref();
+
   return (
-    <div className="min-h-full bg-zinc-50 text-zinc-900 dark:bg-black dark:text-zinc-50">
-      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="min-h-full bg-background text-foreground">
+      <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
           <div className="flex flex-wrap items-baseline gap-4">
             <Link
               href="/portal"
-              className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50"
+              className="text-sm font-semibold tracking-tight text-foreground"
             >
               Customer feedback portal
             </Link>
             <Link
-              href="/docs/overview"
-              className="text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+              href={docsHref}
+              className="text-xs text-muted-foreground hover:text-foreground"
             >
               Documentation
             </Link>
             <Link
               href="/"
-              className="text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+              className="text-xs text-muted-foreground hover:text-foreground"
             >
               Home
             </Link>
             <Link
-              href="/#about"
-              className="text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+              href="/#experience"
+              className="text-xs text-muted-foreground hover:text-foreground"
             >
               About
             </Link>
             <Link
               href="/#contact"
-              className="text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+              className="text-xs text-muted-foreground hover:text-foreground"
             >
               Contact
             </Link>

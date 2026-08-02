@@ -1,0 +1,62 @@
+---
+title: Citation-based answers
+description: How ProAssist grounds AI responses in verifiable documentation sources.
+nav_order: 3
+authors: [Linga Raj M]
+team: ProAssist
+tags: [proassist, citations, grounding, trust]
+last_updated: March 2026
+---
+
+# Citation-based answers
+
+Enterprise teams require traceability. ProAssist answers every question with explicit citations—linked references to the MDX pages and section anchors that support each claim.
+
+## Why citations matter
+
+Without citations, AI assistants hallucinate confidently. ProAssist constrains generation to retrieved doc chunks and attaches source links so readers can:
+
+- Verify accuracy before acting on instructions
+- Share direct links with colleagues
+- Report outdated content via [ProFeed](/prodoc/profeed/overview)
+
+## Citation format
+
+Each citation block includes:
+
+| Field | Example |
+| ----- | ------- |
+| Title | Feedback lifecycle |
+| Path | `/prodoc/profeed/feedback-lifecycle` |
+| Anchor | `#lifecycle-stages` |
+| Excerpt | Relevant paragraph snippet |
+
+```text
+Answer: ProFeed statuses progress from open → triaged → closed.
+
+Sources:
+  [1] Feedback status workflow — /prodoc/profeed/feedback-status-workflow
+  [2] Triage workflow — /prodoc/profeed/triage-workflow#2-triage-in-profeed-admin
+```
+
+<Admonition type="info" title="Grounding policy">
+ProAssist does not cite external URLs or unpublished content. If no relevant doc section exists, it states the gap explicitly and suggests submitting feedback.
+</Admonition>
+
+## Multi-source synthesis
+
+Complex questions may pull from several pages—for example, authentication setup spanning [ProAPI auth standards](/prodoc/proapi/authentication-standards) and getting-started tutorials. Citations are numbered inline so each sentence maps to a verifiable source.
+
+<Collapse title="Citation quality checklist for doc authors">
+Write scannable headings (they become anchor targets). Use admonitions for critical warnings. Cross-link related guides so ProAssist can chain context across pages.
+</Collapse>
+
+## Feedback loop
+
+When citations point to outdated sections, readers use the ProDoc widget to flag the gap. Doc owners triage in ProFeed and track improvement in [ProInsights content performance](/prodoc/proinsights/content-performance).
+
+## Related guides
+
+- [AI search experience](/prodoc/proassist/ai-search-experience)
+- [Ask Documentation AI](/prodoc/proassist/ask-documentation-ai)
+- [ProAssist overview](/prodoc/proassist/overview)

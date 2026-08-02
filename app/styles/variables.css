@@ -1,0 +1,116 @@
+/**
+ * ProDocs semantic variables — consumed by Tailwind, components, and docs portal.
+ * All values reference tokens.css primitives.
+ */
+
+:root {
+  --background: var(--pds-ink-950);
+  --foreground: var(--pds-text-dark-primary);
+  --card: var(--pds-ink-900);
+  --card-foreground: var(--pds-text-dark-primary);
+  --elevated: var(--pds-ink-850);
+  --muted: var(--pds-ink-850);
+  --muted-foreground: var(--pds-text-dark-secondary);
+  --text-tertiary: var(--pds-text-dark-tertiary);
+
+  --accent: var(--pds-purple-500);
+  --accent-hover: var(--pds-purple-400);
+  --accent-glow: var(--pds-accent-glow-dark);
+  --accent-foreground: #ffffff;
+  --secondary-accent: var(--pds-pink-500);
+  --secondary-accent-glow: var(--pds-pink-glow-dark);
+
+  --border: var(--pds-border-dark);
+  --border-strong: var(--pds-border-dark-strong);
+  --border-hover: var(--pds-border-dark-hover);
+  --border-card: var(--pds-border-dark);
+  --border-teal-hover: rgba(147, 51, 234, 0.3);
+  --ring: var(--pds-ring-dark);
+
+  --link: var(--pds-purple-300);
+  --link-hover: var(--pds-purple-200);
+
+  --success: var(--pds-purple-500);
+  --success-foreground: #ffffff;
+
+  --surface-band: var(--pds-ink-900);
+  --surface-footer: var(--pds-ink-700);
+  --nav-bg: var(--pds-nav-dark);
+
+  --bg-primary: var(--pds-ink-950);
+  --bg-secondary: var(--pds-ink-900);
+  --bg-tertiary: var(--pds-ink-850);
+  --bg-elevated: var(--pds-ink-800);
+
+  --text-primary: var(--pds-text-dark-primary);
+  --text-secondary: var(--pds-text-dark-secondary);
+
+  --accent-primary: var(--pds-purple-500);
+  --accent-secondary: var(--pds-pink-500);
+  --accent-gradient: linear-gradient(
+    135deg,
+    var(--pds-purple-500),
+    var(--pds-pink-500)
+  );
+  --accent-gradient-soft: linear-gradient(
+    135deg,
+    rgba(147, 51, 234, 0.15),
+    rgba(236, 72, 153, 0.15)
+  );
+  --accent-glow-purple: var(--pds-accent-glow-dark);
+  --accent-glow-pink: var(--pds-pink-glow-dark);
+
+  --border-primary: var(--pds-border-dark);
+  --border-secondary: var(--pds-border-dark-strong);
+  --border-accent: rgba(147, 51, 234, 0.3);
+  --border-accent-hover: rgba(236, 72, 153, 0.4);
+
+  --card-bg: var(--pds-ink-900);
+  --card-border: var(--pds-border-dark);
+  --card-hover-border: rgba(147, 51, 234, 0.3);
+  --card-hover-bg: rgba(147, 51, 234, 0.05);
+
+  --tag-bg: rgba(147, 51, 234, 0.1);
+  --tag-border: rgba(147, 51, 234, 0.25);
+  --tag-color: var(--pds-purple-300);
+
+  --scrollbar-color: rgba(147, 51, 234, 0.3);
+  --selection-bg: rgba(147, 51, 234, 0.25);
+
+  --bg-page: var(--background);
+  --bg-section-alt: var(--surface-band);
+  --bg-panel: var(--card);
+  --border-soft: var(--border-card);
+  --shadow-panel: var(--pds-shadow-panel-dark);
+  --shadow-panel-sm: var(--pds-shadow-panel-sm-dark);
+}
+
+[data-portfolio-surface] {
+  --background: var(--pds-ink-950);
+  --foreground: var(--pds-text-dark-primary);
+  --card: var(--pds-ink-900);
+  --card-foreground: var(--pds-text-dark-primary);
+  --elevated: var(--pds-ink-850);
+  --muted: var(--pds-ink-850);
+  --muted-foreground: var(--pds-text-dark-secondary);
+  --text-tertiary: var(--pds-text-dark-tertiary);
+  --accent: var(--pds-purple-500);
+  --accent-hover: var(--pds-purple-400);
+  --accent-glow: var(--pds-accent-glow-dark);
+  --accent-foreground: #ffffff;
+  --secondary-accent: var(--pds-pink-500);
+  --secondary-accent-glow: var(--pds-pink-glow-dark);
+  --border: var(--pds-border-dark);
+  --border-strong: var(--pds-border-dark-strong);
+  --border-hover: var(--pds-border-dark-hover);
+  --border-card: var(--pds-border-dark);
+  --border-teal-hover: rgba(147, 51, 234, 0.3);
+  --ring: var(--pds-ring-dark);
+  --link: var(--pds-purple-300);
+  --link-hover: var(--pds-purple-200);
+  --success: var(--pds-purple-500);
+  --success-foreground: #ffffff;
+  --surface-band: var(--pds-ink-900);
+  --surface-footer: var(--pds-ink-700);
+  --nav-bg: var(--pds-nav-dark);
+}

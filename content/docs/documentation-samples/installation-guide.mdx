@@ -1,0 +1,211 @@
+---
+title: Installing the Insurance Claims Platform
+description: Install and validate the Insurance Claims Platform on Linux or Windows — prerequisites, system requirements, installation steps, and troubleshooting.
+nav_order: 1
+authors: [Linga Raj M]
+team: ProDoc
+tags: [installation, claims, platform, deployment]
+last_updated: March 2026
+category: Installation
+---
+
+# Installing the Insurance Claims Platform
+
+This guide walks platform administrators through installing the **Insurance Claims Platform (ICP) v5.4** in a dedicated tenant environment. Complete all validation steps before routing production claim traffic.
+
+## Overview
+
+The Insurance Claims Platform is a multi-tier SaaS application deployed in your organization's Azure or AWS tenant. The installer provisions:
+
+- **Application tier** — Next.js web portal and API gateway
+- **Worker tier** — background processors for adjudication, appeals, and payment batches
+- **Data tier** — PostgreSQL 15 with encrypted storage and automated backups
+
+Typical installation time is **45–90 minutes**, depending on network latency and whether you enable high-availability mode.
+
+<Note title="Maintenance window">
+Schedule installation during an approved change window. The platform enters read-only mode for approximately 15 minutes while database migrations run.
+</Note>
+
+## Prerequisites
+
+Before starting, confirm the following:
+
+| Requirement | Details |
+| ----------- | ------- |
+| Tenant provisioning | ICP tenant ID issued by ProDoc Customer Success |
+| DNS | `claims.{your-domain}.com` CNAME pointing to the load balancer |
+| TLS certificate | Wildcard or SAN cert covering the claims subdomain |
+| Service account | `icp-installer@your-domain.com` with Contributor role on the target subscription |
+| Secrets vault | Azure Key Vault or AWS Secrets Manager accessible from the install subnet |
+
+<Tip title="Pre-flight checklist">
+Download the [Installation Readiness Worksheet](https://example.com/icp-readiness) from the Customer Portal and attach the completed PDF to your change ticket before proceeding.
+</Tip>
+
+## System Requirements
+
+### Application servers (minimum)
+
+| Component | Linux | Windows |
+| --------- | ----- | ------- |
+| CPU | 4 vCPU | 4 vCPU |
+| Memory | 16 GB RAM | 16 GB RAM |
+| Disk | 100 GB SSD | 100 GB SSD |
+| OS | RHEL 8.8+ or Ubuntu 22.04 LTS | Windows Server 2022 |
+
+### Database server
+
+- PostgreSQL 15.x (managed RDS/Azure Database recommended)
+- 500 GB storage with auto-grow enabled
+- Point-in-time recovery enabled (minimum 7-day retention)
+
+### Network
+
+- Outbound HTTPS (443) to `api.prodoc.io`, `*.stripe.com`, and your SMTP relay
+- Inbound HTTPS (443) from corporate VPN and member portal IP ranges
+- Internal connectivity between app tier and database on port 5432
+
+## Installation Steps
+
+### Step 1 — Download the installer
+
+Log in to the ProDoc Customer Portal and download the installer bundle for your target OS.
+
+<Screenshot
+  alt="Customer Portal download page showing ICP v5.4 installer bundle"
+  caption="Figure 1 — Download the installer matching your OS and deployment region."
+/>
+
+### Step 2 — Configure environment variables
+
+Create a `.env.production` file with tenant-specific values. Never commit this file to source control.
+
+```env
+ICP_TENANT_ID=tenant-us-east-001
+ICP_REGION=us-east-1
+DATABASE_URL=postgresql://icp_app:***@db.internal:5432/icp_prod
+REDIS_URL=redis://cache.internal:6379
+STRIPE_SECRET_KEY=sk_live_***
+JWT_SIGNING_KEY=***
+SMTP_HOST=smtp.your-domain.com
+```
+
+### Step 3 — Run the platform installer
+
+<Tabs defaultValue="linux">
+
+<Tab label="Linux" value="linux">
+
+```bash
+# Extract the bundle
+tar -xzf icp-installer-5.4.0-linux-x64.tar.gz
+cd icp-installer-5.4.0
+
+# Verify checksum
+sha256sum -c SHA256SUMS
+
+# Run installer (requires sudo)
+sudo ./install.sh --env-file ../.env.production --ha-mode
+```
+
+Expected output on success:
+
+```
+[OK] Database migrations applied (47 scripts)
+[OK] Worker services registered
+[OK] Health check passed: https://claims.your-domain.com/health
+Installation complete. Tenant: tenant-us-east-001
+```
+
+</Tab>
+
+<Tab label="Windows" value="windows">
+
+```powershell
+# Extract the bundle
+Expand-Archive -Path icp-installer-5.4.0-win-x64.zip -DestinationPath C:\ICP
+
+# Run installer as Administrator
+Set-Location C:\ICP\icp-installer-5.4.0
+.\install.ps1 -EnvFile "C:\ICP\.env.production" -HaMode
+```
+
+Expected output on success:
+
+```
+[OK] Database migrations applied (47 scripts)
+[OK] Worker services registered
+[OK] Health check passed: https://claims.your-domain.com/health
+Installation complete. Tenant: tenant-us-east-001
+```
+
+</Tab>
+
+</Tabs>
+
+### Step 4 — Configure payment gateway
+
+After the base install completes, configure Stripe per [Payment Gateway Configuration](/prodoc/documentation-samples/payment-gateway-configuration).
+
+### Step 5 — Seed reference data
+
+Load carrier and plan reference data from your implementation team:
+
+```bash
+icp-cli data import --type carriers --file ./seed/carriers.csv
+icp-cli data import --type plan-benefits --file ./seed/plans.csv
+```
+
+## Validation
+
+Run the post-install validation suite:
+
+```bash
+icp-cli validate --suite smoke
+```
+
+| Check | Expected result |
+| ----- | --------------- |
+| Health endpoint | HTTP 200 with `"status": "healthy"` |
+| Database connectivity | All 47 migrations at head revision |
+| Worker queue | 0 dead-letter messages |
+| Auth flow | Test user can log in via SSO |
+| Sample claim | Test adjudication completes in under 30 seconds |
+
+<Screenshot
+  alt="Validation dashboard showing all green checks after smoke test"
+  caption="Figure 2 — All smoke checks must pass before promoting to production traffic."
+/>
+
+## Troubleshooting
+
+### Installer fails at database migration
+
+**Symptom:** `Migration 20260315_payment_ledger failed: relation already exists`
+
+**Resolution:** The database was partially migrated in a previous attempt. Restore from the pre-install snapshot and re-run, or contact ProDoc Support with migration log `logs/migration-*.log`.
+
+### Health check returns 503
+
+**Symptom:** Load balancer reports unhealthy targets after install.
+
+**Resolution:**
+
+1. Verify the worker service is running: `systemctl status icp-worker`
+2. Confirm Redis connectivity from the app subnet
+3. Check that `JWT_SIGNING_KEY` matches the value in your secrets vault
+
+### SSO redirect loop
+
+**Symptom:** Users bounce between the login page and identity provider indefinitely.
+
+**Resolution:** Confirm the SAML assertion consumer URL in your IdP matches `https://claims.your-domain.com/auth/saml/callback` exactly, including trailing slash behavior.
+
+<Warning title="Do not skip validation">
+Routing production claim traffic before smoke validation completes may result in stuck adjudication jobs. Always attach validation output to your change ticket.
+</Warning>
+
+---
+
+[← Back to documentation samples](/prodoc/documentation-samples)

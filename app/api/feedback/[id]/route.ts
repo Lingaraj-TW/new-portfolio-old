@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { highlightsJsonSizeOk, parseHighlights } from "@/lib/feedback/highlights";
+import {
+  highlightsJsonSizeOk,
+  parseHighlights,
+} from "@/lib/feedback/highlights";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 
@@ -9,7 +12,8 @@ type Ctx = { params: Promise<{ id: string }> };
 async function assertEditSecret(feedbackId: string, secret: string | null) {
   if (!secret) return "Missing edit secret.";
   const service = createServiceRoleClient();
-  if (!service) return "Editing requires SUPABASE_SERVICE_ROLE_KEY on the server.";
+  if (!service)
+    return "Editing requires SUPABASE_SERVICE_ROLE_KEY on the server.";
 
   const { data, error } = await service
     .from("feedback")
@@ -23,21 +27,67 @@ async function assertEditSecret(feedbackId: string, secret: string | null) {
   return null;
 }
 
-export async function PATCH(request: Request, context: Ctx) {
+export async function GET(request: Request, context: Ctx) {
   if (!isSupabaseConfigured()) {
-    return NextResponse.json({ ok: false, error: "Not configured." }, { status: 503 });
+    return NextResponse.json(
+      { ok: false, error: "Not configured." },
+      { status: 503 },
+    );
   }
 
   const { id } = await context.params;
   const secret = request.headers.get("x-edit-secret");
   const gate = await assertEditSecret(id, secret);
-  if (gate) return NextResponse.json({ ok: false, error: gate }, { status: 403 });
+  if (gate)
+    return NextResponse.json({ ok: false, error: gate }, { status: 403 });
+
+  const service = createServiceRoleClient()!;
+  const { data, error } = await service
+    .from("feedback")
+    .select(
+      "id, page_path, section_anchor, body, rating, star_rating, status, created_at",
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    return NextResponse.json(
+      { ok: false, error: error.message },
+      { status: 500 },
+    );
+  }
+  if (!data) {
+    return NextResponse.json(
+      { ok: false, error: "Not found." },
+      { status: 404 },
+    );
+  }
+
+  return NextResponse.json({ ok: true, feedback: data });
+}
+
+export async function PATCH(request: Request, context: Ctx) {
+  if (!isSupabaseConfigured()) {
+    return NextResponse.json(
+      { ok: false, error: "Not configured." },
+      { status: 503 },
+    );
+  }
+
+  const { id } = await context.params;
+  const secret = request.headers.get("x-edit-secret");
+  const gate = await assertEditSecret(id, secret);
+  if (gate)
+    return NextResponse.json({ ok: false, error: gate }, { status: 403 });
 
   let json: Record<string, unknown>;
   try {
     json = (await request.json()) as Record<string, unknown>;
   } catch {
-    return NextResponse.json({ ok: false, error: "Invalid JSON." }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Invalid JSON." },
+      { status: 400 },
+    );
   }
 
   const body =
@@ -70,11 +120,16 @@ export async function PATCH(request: Request, context: Ctx) {
   })();
 
   const highlights =
-    json.highlights === undefined ? undefined : parseHighlights(json.highlights);
+    json.highlights === undefined
+      ? undefined
+      : parseHighlights(json.highlights);
   if (highlights && !highlightsJsonSizeOk(highlights)) {
-    return NextResponse.json({ ok: false, error: "Highlights too large." }, {
-      status: 400,
-    });
+    return NextResponse.json(
+      { ok: false, error: "Highlights too large." },
+      {
+        status: 400,
+      },
+    );
   }
 
   const patch: Record<string, unknown> = {};
@@ -87,13 +142,19 @@ export async function PATCH(request: Request, context: Ctx) {
   if (highlights !== undefined) patch.highlights = highlights;
 
   if (Object.keys(patch).length === 0) {
-    return NextResponse.json({ ok: false, error: "No changes." }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "No changes." },
+      { status: 400 },
+    );
   }
 
   const service = createServiceRoleClient()!;
   const { error } = await service.from("feedback").update(patch).eq("id", id);
   if (error) {
-    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: error.message },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ ok: true });
@@ -101,18 +162,25 @@ export async function PATCH(request: Request, context: Ctx) {
 
 export async function DELETE(request: Request, context: Ctx) {
   if (!isSupabaseConfigured()) {
-    return NextResponse.json({ ok: false, error: "Not configured." }, { status: 503 });
+    return NextResponse.json(
+      { ok: false, error: "Not configured." },
+      { status: 503 },
+    );
   }
 
   const { id } = await context.params;
   const secret = request.headers.get("x-edit-secret");
   const gate = await assertEditSecret(id, secret);
-  if (gate) return NextResponse.json({ ok: false, error: gate }, { status: 403 });
+  if (gate)
+    return NextResponse.json({ ok: false, error: gate }, { status: 403 });
 
   const service = createServiceRoleClient()!;
   const { error } = await service.from("feedback").delete().eq("id", id);
   if (error) {
-    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: error.message },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ ok: true });

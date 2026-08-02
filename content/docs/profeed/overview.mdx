@@ -1,0 +1,49 @@
+---
+title: ProFeed Overview
+description: Feedback collection and storage that closes the gap between docs and users.
+nav_order: 1
+authors:
+  - Linga Raj M
+team: ProFeed
+---
+
+# ProFeed Overview
+
+## What is ProFeed?
+
+ProFeed is a documentation feedback collection and storage platform that captures real-time user feedback from ProDoc.
+
+## Why ProFeed?
+
+Most documentation fails because:
+
+- There’s no feedback loop
+- There’s no visibility into user issues
+
+ProFeed solves this by:
+
+- Capturing user sentiment (helpful / not helpful, stars)
+- Tracking documentation gaps with section-level context
+
+## Key features
+
+- 👍 / 👎 feedback system
+- Inline comments and context
+- Feedback tagging (author/team)
+- Issue categorization via status/triage
+- Storage & retrieval (Supabase-backed)
+
+## Data flow
+
+User → Feedback Widget → Stored in ProFeed → Sent to ProInsights
+
+## Learn more
+
+- [Triage workflow](/prodoc/profeed/triage-workflow) — admin workflow from submission to resolution
+- [Enable ProFeed feedback](/prodoc/prodoc/enable-profeed-feedback) — configuration guide
+- [APIs & Integrations](/prodoc/apis/overview) — feedback API endpoints
+
+## Example use case
+
+A user clicks "Not helpful" on an API page and submits a comment. ProFeed stores it with the page path and section anchor so the docs owner can fix exactly what's wrong.
+

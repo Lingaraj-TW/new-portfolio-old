@@ -1,18 +1,39 @@
 # ProDoc
 
-Documentation as a product: interactive docs with **section-level feedback** and an **admin triage** dashboard for product teams.
+Portfolio + **documentation ecosystem** for **Linga Raj M** (Senior Technical Writer): a marketing site plus six connected product concepts — three with live demos in this repo.
 
-## Features (MVP)
+See **[CODEBASE_STRUCTURE.md](./CODEBASE_STRUCTURE.md)** for the folder map and **[SCOPE.md](./SCOPE.md)** for build scope and portfolio notes.
 
-- Public documentation site (MDX, heading anchors for section targeting)
-- Feedback widget: helpful / not helpful + optional message, tied to page and section
-- Supabase-backed storage with RLS (anonymous submit, authenticated admin)
-- Admin UI at `/admin` for listing and updating feedback status
+## Products
+
+| Product | What it is | Marketing page | Live in this app |
+|---------|------------|----------------|------------------|
+| **ProDoc** | MDX docs-as-code (guides, API-style samples, SDK-style content) | `/products/prodoc` | `/prodoc` (rewrites to `/docs`) |
+| **ProFeed** | Feedback capture, triage inbox, status workflow | `/products/profeed` | `/profeed`, `/profeed/inbox` |
+| **ProInsights** | Analytics dashboard over ProFeed data (charts, trends) | `/products/proinsights` | `/proinsights` (auth); `/preview/proinsights-mock` for screenshots |
+| **ProStyle** | Style guide & terminology consistency (concept) | `/products/prostyle` | — |
+| **ProReview** | Collaborative doc review workflow (concept) | `/products/proreview` | — |
+| **ProOps** | Docs operations, governance, release cadence (concept) | `/products/proops` | — |
+
+Overview of all six: `/products`
+
+**Loop:** readers submit feedback on **ProDoc** → triage in **ProFeed** → metrics in **ProInsights**. **ProStyle**, **ProReview**, and **ProOps** are portfolio concept pages for the wider platform story.
+
+## Features
+
+- **Portfolio** — home, about, experience, skills, contact, product ecosystem cards
+- **ProDoc** — MDX documentation with section-level feedback widget
+- **ProFeed** — public feed, admin inbox (`/profeed/inbox`), customer portal (`/profeed/portal`)
+- **ProInsights** — Recharts dashboards fed from Supabase `feedback` data
+- **ProDoc Assistant** — site/docs-aware chat (optional Gemini key)
+- **Admin** — content dashboard at `/admin/dashboard` (separate from ProFeed triage)
 
 ## Stack
 
-- [Next.js](https://nextjs.org/) (App Router) + TypeScript + Tailwind CSS
-- [Supabase](https://supabase.com/) (Postgres, Auth)
+- [Next.js](https://nextjs.org/) 16 (App Router) + React 19 + TypeScript + Tailwind CSS 4
+- [Supabase](https://supabase.com/) — Postgres, Auth, Storage (feedback + attachments)
+- [Recharts](https://recharts.org/) — ProInsights charts
+- MDX via `next-mdx-remote` (`content/docs/`)
 
 ## Local development
 
@@ -24,7 +45,7 @@ Documentation as a product: interactive docs with **section-level feedback** and
 
 2. **Environment**
 
-   Copy `.env.example` to `.env.local` and set your Supabase project URL and keys. Apply the SQL in `supabase/migrations/` in the Supabase SQL editor (or use the Supabase CLI).
+   Copy `.env.example` to `.env.local` and set your Supabase project URL and anon key. Run SQL in `supabase/migrations/` (001 → 002 → 003 as noted in `.env.example`).
 
 3. **Run**
 
@@ -32,16 +53,22 @@ Documentation as a product: interactive docs with **section-level feedback** and
    npm run dev
    ```
 
-   Open [http://localhost:3000](http://localhost:3000).
+   Open [http://127.0.0.1:3000](http://127.0.0.1:3000).
 
-4. **Admin**
+4. **ProFeed / ProInsights (authenticated)**
 
-   Create a user in Supabase Auth (or sign up if enabled). Grant admin by setting `app_metadata.role` to `admin` for that user (see `supabase/migrations` notes), then sign in at `/admin/login`.
+   In Supabase Auth, set `app_metadata.role` to `admin` or `customer` for your user. Then open `/profeed/inbox` or `/proinsights`.
+
+5. **Optional**
+
+   - `SUPABASE_SERVICE_ROLE_KEY` — attachment uploads and signed download URLs
+   - `GEMINI_API_KEY` — full ProDoc Assistant replies
+   - `npm run capture-previews` — regenerate home-page product screenshots under `public/portfolio/`
 
 ## Deployment
 
-- **App:** Deploy to [Vercel](https://vercel.com/) (or any Node host). Set the same env vars as `.env.example`.
-- **Database:** Use your Supabase project; run migrations once.
+- **App:** [Vercel](https://vercel.com/) (or any Node host). Use the same env vars as `.env.example`.
+- **Database:** Supabase project; apply migrations once per environment.
 
 ## License
 

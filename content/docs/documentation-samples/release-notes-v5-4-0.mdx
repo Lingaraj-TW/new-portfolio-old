@@ -1,0 +1,103 @@
+---
+title: Release Notes v5.4.0
+description: Insurance Claims Platform v5.4.0 release notes — new features, enhancements, bug fixes, known issues, and deprecations.
+nav_order: 7
+authors: [Linga Raj M]
+team: ProDoc
+tags: [release-notes, v5.4.0, changelog]
+last_updated: March 2026
+category: Release Notes
+---
+
+# Release Notes v5.4.0
+
+**Release date:** March 15, 2026  
+**Version:** 5.4.0  
+**Codename:** Ledger
+
+This release introduces payment ledger reconciliation, appeals SLA dashboards, and performance improvements to the adjudication engine. All tenants should plan a maintenance window for database migrations.
+
+## New features
+
+### Payment ledger reconciliation dashboard
+
+Finance teams can now reconcile Stripe payment events against ICP ledger entries in a single view. Supports filtering by date range, payment type, and discrepancy status.
+
+- **Location:** Admin Console → Finance → Payment Ledger
+- **Requires:** Payment module licensed; Stripe webhook configured
+- **Documentation:** [Payment Gateway Configuration](/prodoc/documentation-samples/payment-gateway-configuration)
+
+### Appeals SLA dashboard
+
+Real-time visibility into appeal queue depth, SLA compliance rates, and breach alerts. Supervisors can reassign appeals directly from the dashboard.
+
+- **Location:** Admin Console → Appeals → SLA Dashboard
+- **Requires:** Appeals Management module enabled
+- **Documentation:** [Implementing Appeals Management Workflow](/prodoc/documentation-samples/implementation-appeals)
+
+### Batch claim reprocessing
+
+Administrators can trigger batch reprocessing for claims affected by configuration changes, with dry-run mode to preview impact before execution.
+
+```bash
+icp-cli claims reprocess --filter "status=adjudicated AND rule_version<5.4" --dry-run
+```
+
+### Carrier onboarding wizard
+
+Guided step-by-step wizard for new carrier setup, replacing the previous 12-page configuration form. Reduces onboarding configuration time by an estimated 40%.
+
+## Enhancements
+
+| Area | Change |
+| ---- | ------ |
+| Adjudication engine | 35% faster processing for claims with &gt; 5 service lines |
+| Member portal | Improved mobile responsiveness for grievance and appeal forms |
+| API rate limits | Increased default from 100 to 200 requests/minute per API key |
+| Export jobs | CSV exports now include UTF-8 BOM for Excel compatibility |
+| Audit logging | Payment events include Stripe event ID for cross-reference |
+| Search | Full-text search across claim notes and appeal correspondence |
+
+## Bug fixes
+
+| ID | Description | Impact |
+| -- | ----------- | ------ |
+| DEF-2458 | Duplicate payment processing under retry conditions | High — see [DEF-2458 article](/prodoc/documentation-samples/def-2458-duplicate-payment) |
+| DEF-2481 | Appeals SLA timer not pausing during "Info Requested" status | Medium |
+| DEF-2490 | Provider search returning stale results after network update | Medium |
+| DEF-2502 | Export job email notification sent twice | Low |
+| DEF-2515 | SSO session timeout not respecting IdP `SessionNotOnOrAfter` | Medium |
+| DEF-2520 | Grievance attachment upload failing for files exactly 10 MB | Low |
+
+## Known issues
+
+| ID | Description | Workaround | Target fix |
+| -- | ----------- | ---------- | ---------- |
+| DEF-2530 | Payment ledger dashboard slow for tenants with &gt; 1M transactions | Filter by date range ≤ 90 days | v5.4.1 |
+| DEF-2533 | Batch reprocess dry-run timeout for filters matching &gt; 50k claims | Split into smaller batches | v5.4.1 |
+| DEF-2538 | Safari 17 private browsing mode loses SSO session on tab switch | Use standard browsing mode | v5.5.0 |
+
+## Deprecations
+
+| Item | Deprecated in | Removal date | Migration path |
+| ---- | ------------- | ------------ | -------------- |
+| `/v1/payments/charge` endpoint | v5.4.0 | September 15, 2026 | Use `/v2/payments/intents` |
+| Legacy appeals tracker module | v5.4.0 | June 30, 2026 | Migrate to Appeals Management module |
+| `icp-cli data import --format xml` | v5.4.0 | December 31, 2026 | Use CSV or EDI formats |
+
+<Warning title="Apply database migrations">
+This release includes schema changes. Apply migrations during your maintenance window before deploying application code. See [Database Changes v5.4.0](/prodoc/documentation-samples/database-changes-v5-4-0).
+</Warning>
+
+## Upgrade steps
+
+1. Schedule maintenance window (estimated 20 minutes)
+2. Apply database migrations: `icp-cli db migrate --to 5.4.0`
+3. Deploy application tier v5.4.0
+4. Restart worker services
+5. Run smoke validation: `icp-cli validate --suite smoke`
+6. Verify payment webhook delivery if Payment module is enabled
+
+---
+
+[← Back to documentation samples](/prodoc/documentation-samples)

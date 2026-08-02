@@ -1,0 +1,40 @@
+---
+title: APIs & Integrations
+description: Integrate ProDoc, ProFeed, and ProInsights via APIs and webhooks.
+nav_order: 1
+authors:
+  - Linga Raj M
+team: ProDocs Ecosystem
+---
+
+# APIs & Integrations
+
+## Overview
+
+The ecosystem is designed to be connected:
+
+- **ProDoc** publishes pages that users read.
+- **ProFeed** captures feedback via a widget and stores it in a database.
+- **ProInsights** aggregates and analyzes those signals.
+
+## ProFeed API (this repo)
+
+- **Submit feedback**: `POST /api/feedback`
+- **Edit / delete feedback**: `PATCH|DELETE /api/feedback/:id` (device-scoped via edit secret)
+- **Attachment deletion**: `DELETE /api/feedback/attachments/:attachmentId`
+
+## Docs metadata
+
+To enable tagging by author/team, docs expose metadata:
+
+- `GET /api/docs/meta/<slug>`
+
+With nested docs, the `<slug>` can be multi-segment, like `getting-started/intro`.
+
+## Webhooks (future-ready)
+
+Typical integration points:
+
+- On new “not helpful” feedback → create an issue/ticket
+- On feedback status change → notify docs owners
+

@@ -1,5 +1,11 @@
-import { redirect } from "next/navigation";
+import { Suspense } from "react";
+
+import { AdminLoginClient } from "@/components/admin/AdminLoginClient";
 
 export default function AdminLoginPage() {
-  redirect("/profeed/login");
+  return (
+    <Suspense fallback={null}>
+      <AdminLoginClient />
+    </Suspense>
+  );
 }

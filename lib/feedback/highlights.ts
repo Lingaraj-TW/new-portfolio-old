@@ -15,7 +15,15 @@ export function parseHighlights(raw: unknown): HighlightEntry[] {
         kind: "text",
         quote: rec.quote.slice(0, MAX_QUOTE),
         note:
-          typeof rec.note === "string" ? rec.note.slice(0, MAX_NOTE) : undefined,
+          typeof rec.note === "string"
+            ? rec.note.slice(0, MAX_NOTE)
+            : undefined,
+        anchorId:
+          typeof rec.anchorId === "string"
+            ? rec.anchorId.slice(0, 200)
+            : undefined,
+        startOffset: numOrUndef(rec.startOffset),
+        endOffset: numOrUndef(rec.endOffset),
       });
     }
     if (
@@ -28,7 +36,13 @@ export function parseHighlights(raw: unknown): HighlightEntry[] {
         xPct: clampPct(rec.xPct),
         yPct: clampPct(rec.yPct),
         note:
-          typeof rec.note === "string" ? rec.note.slice(0, MAX_NOTE) : undefined,
+          typeof rec.note === "string"
+            ? rec.note.slice(0, MAX_NOTE)
+            : undefined,
+        anchorId:
+          typeof rec.anchorId === "string"
+            ? rec.anchorId.slice(0, 200)
+            : undefined,
       });
     }
     if (out.length >= MAX_HIGHLIGHTS) break;
@@ -39,6 +53,13 @@ export function parseHighlights(raw: unknown): HighlightEntry[] {
 function clampPct(n: number) {
   if (!Number.isFinite(n)) return 0;
   return Math.min(100, Math.max(0, n));
+}
+
+function numOrUndef(n: unknown): number | undefined {
+  if (typeof n !== "number" || !Number.isFinite(n)) return undefined;
+  if (n < 0) return 0;
+  if (n > 10_000_000) return 10_000_000;
+  return Math.floor(n);
 }
 
 export function highlightsJsonSizeOk(value: HighlightEntry[]) {

@@ -1,0 +1,177 @@
+---
+title: Database Changes v5.4.0
+description: Database schema changes for Insurance Claims Platform v5.4.0 — new tables, migrations, SQL examples, and rollback procedures.
+nav_order: 9
+authors: [Linga Raj M]
+team: ProDoc
+tags: [database, migration, schema, v5.4.0]
+last_updated: March 2026
+category: Database
+---
+
+# Database Changes v5.4.0
+
+This document describes schema changes introduced in **ICP v5.4.0**. Apply all migrations in order during the approved maintenance window.
+
+**Migration count:** 4 scripts  
+**Estimated duration:** 8–12 minutes (depends on payment ledger table size)  
+**Rollback supported:** Yes (see Rollback section)
+
+<Warning title="Backup before migrating">
+Take a full database snapshot before applying migrations. Rollback scripts are provided but data written to new tables after migration cannot be automatically recovered.
+</Warning>
+
+## Migration summary
+
+| Script | Description | Estimated time |
+| ------ | ----------- | -------------- |
+| `20260310_payment_idempotency.sql` | Add idempotency key column and unique constraint on payment ledger | 2 min |
+| `20260312_payment_reconciliation.sql` | Create payment reconciliation table and indexes | 3 min |
+| `20260314_appeals_sla_metrics.sql` | Add SLA tracking columns to appeals table | 1 min |
+| `20260315_ledger_audit_index.sql` | Add composite index on payment ledger for dashboard queries | 5 min |
+
+## New tables
+
+### `payment_reconciliation`
+
+Stores reconciliation results between Stripe events and ICP ledger entries.
+
+```sql
+CREATE TABLE payment_reconciliation (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id       VARCHAR(50) NOT NULL,
+    stripe_event_id VARCHAR(255) NOT NULL,
+    payment_id      UUID REFERENCES payment_ledger(id),
+    status          VARCHAR(20) NOT NULL DEFAULT 'pending',
+    -- 'matched', 'discrepancy', 'pending', 'resolved'
+    discrepancy_type VARCHAR(50),
+    amount_expected  NUMERIC(12,2),
+    amount_actual    NUMERIC(12,2),
+    reconciled_at    TIMESTAMPTZ,
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT uq_stripe_event UNIQUE (tenant_id, stripe_event_id)
+);
+
+CREATE INDEX idx_recon_status ON payment_reconciliation (tenant_id, status);
+CREATE INDEX idx_recon_created ON payment_reconciliation (tenant_id, created_at DESC);
+```
+
+### Column additions
+
+**`payment_ledger`** — idempotency support (DEF-2458 fix):
+
+```sql
+ALTER TABLE payment_ledger
+    ADD COLUMN idempotency_key VARCHAR(255),
+    ADD COLUMN stripe_intent_id VARCHAR(255);
+
+CREATE UNIQUE INDEX uq_payment_idempotency
+    ON payment_ledger (tenant_id, idempotency_key)
+    WHERE idempotency_key IS NOT NULL;
+
+CREATE UNIQUE INDEX uq_payment_stripe_intent
+    ON payment_ledger (tenant_id, stripe_intent_id)
+    WHERE stripe_intent_id IS NOT NULL;
+```
+
+**`appeals`** — SLA tracking columns:
+
+```sql
+ALTER TABLE appeals
+    ADD COLUMN sla_deadline    TIMESTAMPTZ,
+    ADD COLUMN sla_breached    BOOLEAN NOT NULL DEFAULT FALSE,
+    ADD COLUMN sla_paused_at   TIMESTAMPTZ,
+    ADD COLUMN sla_paused_reason VARCHAR(100);
+```
+
+## Apply migrations
+
+```bash
+# Check current migration state
+icp-cli db status
+
+# Apply all v5.4.0 migrations
+icp-cli db migrate --to 5.4.0
+
+# Verify head revision
+icp-cli db status --expected 20260315_ledger_audit_index
+```
+
+Expected output:
+
+```
+Current revision: 20260315_ledger_audit_index
+Status: UP TO DATE
+Pending migrations: 0
+```
+
+## Data backfill
+
+After migration, run the backfill script to populate SLA deadlines for open appeals:
+
+```sql
+-- Backfill SLA deadlines for open appeals (run once post-migration)
+UPDATE appeals
+SET sla_deadline = created_at + INTERVAL '30 days'
+WHERE status IN ('received', 'in_review', 'info_requested')
+  AND sla_deadline IS NULL
+  AND expedited = FALSE;
+
+UPDATE appeals
+SET sla_deadline = created_at + INTERVAL '72 hours'
+WHERE status IN ('received', 'in_review', 'info_requested')
+  AND sla_deadline IS NULL
+  AND expedited = TRUE;
+```
+
+<Tip title="Run backfill during maintenance">
+The backfill UPDATE affects all open appeals. Run during the maintenance window to avoid lock contention with the appeals worker.
+</Tip>
+
+## Rollback
+
+If rollback is required, apply scripts in **reverse order**:
+
+```bash
+icp-cli db rollback --to 5.3.2
+```
+
+Manual rollback for individual scripts:
+
+```sql
+-- Rollback 20260315
+DROP INDEX IF EXISTS idx_ledger_tenant_created;
+
+-- Rollback 20260314
+ALTER TABLE appeals
+    DROP COLUMN IF EXISTS sla_paused_reason,
+    DROP COLUMN IF EXISTS sla_paused_at,
+    DROP COLUMN IF EXISTS sla_breached,
+    DROP COLUMN IF EXISTS sla_deadline;
+
+-- Rollback 20260312
+DROP TABLE IF EXISTS payment_reconciliation;
+
+-- Rollback 20260310
+DROP INDEX IF EXISTS uq_payment_stripe_intent;
+DROP INDEX IF EXISTS uq_payment_idempotency;
+ALTER TABLE payment_ledger
+    DROP COLUMN IF EXISTS stripe_intent_id,
+    DROP COLUMN IF EXISTS idempotency_key;
+```
+
+<Note title="Rollback limitations">
+Rolling back `20260310` will remove idempotency keys from the payment ledger. Do not rollback this migration if v5.4.0 payment processing has processed live transactions.
+</Note>
+
+## Related documentation
+
+- [Release Notes v5.4.0](/prodoc/documentation-samples/release-notes-v5-4-0)
+- [DEF-2458 Duplicate Payment Processing](/prodoc/documentation-samples/def-2458-duplicate-payment)
+- [Installing the Insurance Claims Platform](/prodoc/documentation-samples/installation-guide)
+
+---
+
+[← Back to documentation samples](/prodoc/documentation-samples)

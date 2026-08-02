@@ -1,0 +1,58 @@
+---
+title: Improve docs using insights
+description: "Close the loop: use analytics to ship doc improvements and validate impact."
+nav_order: 4
+authors:
+  - Linga Raj M
+team: ProDocs Ecosystem
+---
+
+# Improve docs using insights
+
+## The loop in practice
+
+1. **Find** — Use [ProInsights](/proinsights) to locate weak pages and sections.
+2. **Investigate** — Open matching items in [ProFeed](/profeed) for reader comments and anchors.
+3. **Fix** — Update the relevant MDX file under `content/docs/...`.
+4. **Deploy** — Merge and publish the change.
+5. **Measure** — Watch feedback trends on that page after the fix ships.
+6. **Close** — Mark ProFeed items **resolved** with a note linking to the change.
+
+## Worked example
+
+### Problem
+
+ProInsights shows repeated "not helpful" feedback on `/prodoc/prodoc/enable-profeed-feedback` with section anchors pointing to **Verify**.
+
+ProFeed comments say: "Steps don't mention which migration file to run first."
+
+### Fix
+
+1. Edit `content/docs/prodoc/enable-profeed-feedback.mdx`
+2. Add an ordered migration list with file names (`001`, `002`, `003`, `004`)
+3. Add a troubleshooting table for common errors
+4. Merge to `main`
+
+### Validation
+
+1. Ask a reviewer to re-read the page and submit **Helpful** feedback
+2. Check ProInsights — negative count on that page should plateau or drop
+3. Resolve original ProFeed tickets with "Fixed in [commit/PR]"
+
+## Writing effective fixes
+
+When editing MDX based on insights:
+
+- **Address the anchored section** — if feedback targets `## Verify`, fix that section first
+- **Add prerequisites** — many failures are missing setup context
+- **Link forward** — point readers to the next tutorial step
+- **Avoid scope creep** — one page fix per PR when possible for clean measurement
+
+## Document the win
+
+Publish a brief case study in [Insights](/prodoc/insights/overview) when a measurable improvement occurs — it demonstrates closed-loop documentation practice to stakeholders.
+
+## Related
+
+- [End-to-end loop](/prodoc/tutorials/end-to-end-loop)
+- [Dashboard guide](/prodoc/proinsights/dashboard-guide)

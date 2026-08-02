@@ -1,0 +1,61 @@
+---
+title: API integration guide
+description: Sample REST API documentation — progressive disclosure, prerequisites, and copy-pasteable requests.
+nav_order: 4
+authors:
+  - Linga Raj M
+team: Portfolio
+---
+
+# Sample API integration guide
+
+This sample mirrors how I document healthcare and enterprise APIs: progressive disclosure, explicit prerequisites, and copy-pasteable requests that align with OpenAPI sources of truth.
+
+## Prerequisites
+
+- API base URL issued by your administrator
+- OAuth client credentials with `claims.read` scope
+- TLS 1.2+ from every integration environment
+
+## Authenticate
+
+Request a bearer token from the token endpoint:
+
+```http
+POST /oauth/token HTTP/1.1
+Host: api.example.com
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id={id}&client_secret={secret}
+```
+
+Store the token securely — rotate client secrets quarterly and avoid logging response bodies in shared environments.
+
+## Fetch claims
+
+Use the token when calling protected resources:
+
+```http
+GET /v1/claims/{memberId} HTTP/1.1
+Host: api.example.com
+Authorization: Bearer {access_token}
+Accept: application/json
+```
+
+## Error handling
+
+| Code | Meaning               | Recommended action                              |
+| ---- | --------------------- | ----------------------------------------------- |
+| 401  | Token missing/expired | Refresh credentials; verify clock skew          |
+| 403  | Scope insufficient    | Ask admin to grant least-privilege scopes       |
+| 429  | Throttled             | Back off exponentially; respect `Retry-After`   |
+
+## Testing checklist
+
+- Validate happy path with Postman collections checked into Git
+- Capture negative tests (401/403/404) for support playbooks
+- Document payload samples straight from QA-verified fixtures
+
+---
+
+[← Back to writing samples](/prodoc/samples)

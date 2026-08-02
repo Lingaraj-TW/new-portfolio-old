@@ -1,0 +1,170 @@
+---
+title: Payment Gateway Configuration
+description: Configure Stripe payment gateway integration — API keys, webhooks, environment variables, and security controls for the Insurance Claims Platform.
+nav_order: 3
+authors: [Linga Raj M]
+team: ProDoc
+tags: [payments, stripe, configuration, security]
+last_updated: March 2026
+category: Configuration
+---
+
+# Payment Gateway Configuration
+
+This guide explains how to connect the Insurance Claims Platform to **Stripe** for member premium payments, copay collection, and claim reimbursement disbursements.
+
+## Overview
+
+ICP uses Stripe as the primary payment processor. The integration supports:
+
+- **Card payments** — Visa, Mastercard, Amex, Discover
+- **ACH debits** — for recurring premium payments
+- **Outbound transfers** — claim reimbursement via Stripe Connect
+
+All payment events flow through a webhook endpoint that updates claim and ledger records in real time.
+
+<Warning title="Production keys only in vault">
+Never store live Stripe secret keys in `.env` files checked into Git. Use Azure Key Vault, AWS Secrets Manager, or your organization's approved secrets store.
+</Warning>
+
+## Prerequisites
+
+- Stripe account with **Connect** enabled (contact Stripe or your ProDoc CSM)
+- ICP tenant with Payment module licensed
+- Outbound HTTPS access to `api.stripe.com` and `hooks.stripe.com`
+- PCI DSS attestation on file for your organization
+
+## Stripe dashboard setup
+
+### 1. Create API keys
+
+In the Stripe Dashboard, navigate to **Developers → API keys**:
+
+| Key type | Usage | Storage |
+| -------- | ----- | ------- |
+| Publishable key (`pk_live_...`) | Client-side tokenization | Safe in frontend config |
+| Secret key (`sk_live_...`) | Server-side charges and refunds | Secrets vault only |
+| Webhook signing secret (`whsec_...`) | Verify webhook payloads | Secrets vault only |
+
+<Tabs defaultValue="test">
+
+<Tab label="Test mode" value="test">
+
+Use test keys during implementation and UAT:
+
+```env
+STRIPE_PUBLISHABLE_KEY=pk_test_51ABC...
+STRIPE_SECRET_KEY=sk_test_51ABC...
+STRIPE_WEBHOOK_SECRET=whsec_test_...
+```
+
+Test card: `4242 4242 4242 4242` — any future expiry, any CVC.
+
+</Tab>
+
+<Tab label="Live mode" value="live">
+
+Production keys require Stripe account activation and PCI attestation:
+
+```env
+STRIPE_PUBLISHABLE_KEY=pk_live_51ABC...
+STRIPE_SECRET_KEY=sk_live_51ABC...
+STRIPE_WEBHOOK_SECRET=whsec_live_...
+```
+
+Rotate secret keys quarterly and update the vault reference — ICP picks up new values on the next worker restart.
+
+</Tab>
+
+</Tabs>
+
+### 2. Configure webhooks
+
+Register a webhook endpoint in **Developers → Webhooks**:
+
+| Field | Value |
+| ----- | ----- |
+| Endpoint URL | `https://claims.your-domain.com/api/webhooks/stripe` |
+| API version | `2024-11-20.acacia` (match ICP requirement) |
+| Events | See event list below |
+
+**Required webhook events:**
+
+```
+payment_intent.succeeded
+payment_intent.payment_failed
+charge.refunded
+transfer.created
+transfer.failed
+customer.subscription.updated
+```
+
+After creating the endpoint, copy the **Signing secret** to your secrets vault.
+
+### 3. Enable Stripe Connect (reimbursements)
+
+For outbound claim reimbursements:
+
+1. Navigate to **Connect → Settings**
+2. Enable **Express accounts** for payees
+3. Configure the platform branding and payout schedule (recommended: daily, 2-day delay)
+
+## Environment variables
+
+Add the following to your production environment (via secrets vault reference):
+
+```env
+# Stripe core
+STRIPE_PUBLISHABLE_KEY=pk_live_***
+STRIPE_SECRET_KEY=sk_live_***
+STRIPE_WEBHOOK_SECRET=whsec_***
+
+# Connect (reimbursements)
+STRIPE_CONNECT_CLIENT_ID=ca_***
+STRIPE_PLATFORM_ACCOUNT_ID=acct_***
+
+# Feature flags
+ICP_PAYMENTS_ENABLED=true
+ICP_ACH_ENABLED=true
+ICP_MAX_CHARGE_AMOUNT=50000
+```
+
+<Tip title="Idempotency keys">
+ICP automatically generates Stripe idempotency keys for all charge requests. Do not disable this behavior — it prevents duplicate charges during network retries.
+</Tip>
+
+## Security controls
+
+| Control | Implementation |
+| ------- | -------------- |
+| PCI scope reduction | Card data tokenized client-side via Stripe.js; never touches ICP servers |
+| Webhook verification | HMAC signature validated on every inbound webhook |
+| Key rotation | Quarterly rotation with 24-hour overlap window |
+| Audit logging | All payment events logged to immutable audit trail |
+| Amount limits | `ICP_MAX_CHARGE_AMOUNT` caps single-transaction charges |
+| IP allowlisting | Optional restriction of webhook source IPs (Stripe publishes ranges) |
+
+## Validation
+
+After configuration, run the payment smoke test:
+
+```bash
+icp-cli payments test --mode live --amount 1.00
+```
+
+Expected results:
+
+1. Test charge succeeds in Stripe Dashboard
+2. Webhook delivered with HTTP 200 response
+3. Payment ledger entry created in ICP
+4. Test charge automatically refunded
+
+## Troubleshooting
+
+If payments fail after configuration, see [Common Payment Processing Issues](/prodoc/documentation-samples/payment-troubleshooting).
+
+For the duplicate payment defect tracked in v5.4.0, see [DEF-2458](/prodoc/documentation-samples/def-2458-duplicate-payment).
+
+---
+
+[← Back to documentation samples](/prodoc/documentation-samples)

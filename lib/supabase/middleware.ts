@@ -1,6 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
+import {
+  ADMIN_SESSION_COOKIE,
+  isAdminSessionCookie,
+} from "@/lib/admin/session";
 import { isSupabaseConfigured } from "./config";
 
 function isAdminUser(user: {
@@ -17,16 +21,33 @@ function isCustomerUser(user: {
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
+  const path = request.nextUrl.pathname;
+  const cookieAdmin = isAdminSessionCookie(
+    request.cookies.get(ADMIN_SESSION_COOKIE)?.value,
+  );
 
   if (!isSupabaseConfigured()) {
-    const path = request.nextUrl.pathname;
-    if (
-      (path.startsWith("/admin") && !path.startsWith("/admin/login")) ||
-      (path.startsWith("/portal") && !path.startsWith("/portal/login"))
-    ) {
+    if (path.startsWith("/admin") && !path.startsWith("/admin/login")) {
+      if (!cookieAdmin) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/admin/login";
+        url.searchParams.set("next", path);
+        return NextResponse.redirect(url);
+      }
+      return response;
+    }
+    if (path.startsWith("/portal") && !path.startsWith("/portal/login")) {
       const url = request.nextUrl.clone();
-      url.pathname = path.startsWith("/portal") ? "/portal/login" : "/admin/login";
+      url.pathname = "/portal/login";
       url.searchParams.set("misconfigured", "1");
+      return NextResponse.redirect(url);
+    }
+    if (path.startsWith("/admin/login") && cookieAdmin) {
+      const next = request.nextUrl.searchParams.get("next");
+      const url = request.nextUrl.clone();
+      url.pathname =
+        next && next.startsWith("/") ? next : "/admin/dashboard";
+      url.search = "";
       return NextResponse.redirect(url);
     }
     return response;
@@ -53,13 +74,22 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const path = request.nextUrl.pathname;
+  let user: {
+    app_metadata?: Record<string, unknown>;
+  } | null = null;
+  try {
+    const {
+      data: { user: u },
+    } = await supabase.auth.getUser();
+    user = u;
+  } catch {
+    user = null;
+  }
 
   if (path.startsWith("/admin") && !path.startsWith("/admin/login")) {
+    if (cookieAdmin) {
+      return response;
+    }
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin/login";
@@ -74,10 +104,13 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  if (path.startsWith("/admin/login") && user && isAdminUser(user)) {
+  if (
+    path.startsWith("/admin/login") &&
+    (cookieAdmin || (user && isAdminUser(user)))
+  ) {
     const next = request.nextUrl.searchParams.get("next");
     const url = request.nextUrl.clone();
-    url.pathname = next && next.startsWith("/admin") ? next : "/admin";
+    url.pathname = next && next.startsWith("/") ? next : "/admin/dashboard";
     url.search = "";
     return NextResponse.redirect(url);
   }

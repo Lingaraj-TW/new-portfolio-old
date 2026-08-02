@@ -1,0 +1,70 @@
+---
+title: Analyze with ProInsights
+description: Use ProInsights to identify where docs are failing and what to fix.
+nav_order: 3
+authors:
+  - Linga Raj M
+team: ProInsights
+---
+
+# Analyze with ProInsights
+
+## What ProInsights answers
+
+- Which pages get the most negative feedback?
+- Which sections are frequently targeted via section anchors?
+- Are we improving over time after doc changes?
+- What is the ratio of helpful vs not helpful across the doc set?
+
+## Prerequisites
+
+- ProDoc running locally or deployed
+- ProFeed configured with at least a few feedback submissions (see [Enable ProFeed feedback](/prodoc/prodoc/enable-profeed-feedback))
+
+## Steps
+
+### 1. Seed feedback data
+
+Open three different doc pages and submit varied feedback:
+
+| Page | Action |
+| ---- | ------ |
+| [Setup ProDoc](/prodoc/tutorials/setup-prodoc) | Mark **Helpful**, 5 stars |
+| [ProFeed Overview](/prodoc/profeed/overview) | Mark **Not helpful**, add comment "Missing triage screenshot" |
+| [API integration guide sample](/prodoc/samples/api-guide) | Mark **Not helpful**, select the **Error handling** section anchor |
+
+This gives ProInsights multiple pages and sentiment types to aggregate.
+
+### 2. Open the dashboard
+
+Navigate to [/proinsights](/proinsights).
+
+Review:
+
+- **Overview metrics** — total feedback count and sentiment split
+- **Top pages** — which `/prodoc/...` paths appear most often
+- **Charts** — helpful vs not helpful trends and star rating distribution
+
+### 3. Cross-reference with ProFeed
+
+For the page with the highest negative count:
+
+1. Open [ProFeed](/profeed)
+2. Filter by that `page_path`
+3. Read comments and section anchors — they tell you *what* to fix, not just *where*
+
+### 4. Prioritize
+
+Create a short priority list:
+
+1. Pages with high volume **and** high negative sentiment
+2. Pages linked from onboarding/tutorials (block first success)
+3. Pages with repeated section-anchor feedback on the same heading
+
+## Example insight
+
+> 80% of "not helpful" votes on `/prodoc/profeed/overview` reference missing triage workflow steps → add screenshots and link to [Triage workflow](/prodoc/profeed/triage-workflow).
+
+## Next step
+
+[Improve docs using insights](/prodoc/tutorials/improve-docs-using-insights)

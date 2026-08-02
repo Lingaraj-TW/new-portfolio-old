@@ -1,0 +1,49 @@
+---
+title: Documentation Intelligence Loop in Production
+description: Closing the feedback loop between readers, analytics, and published docs.
+nav_order: 2
+tags: [blog, prodoc, profeed, proinsights]
+last_updated: March 2026
+category: Product
+---
+
+# Documentation Intelligence Loop in Production
+
+Enterprise documentation fails when it ships once and never improves. The **Documentation Intelligence Loop** connects reading, feedback, analytics, and authoring into a measurable cycle.
+
+## The loop
+
+```mermaid
+flowchart LR
+  Publish[ProDoc Publish] --> Read[Readers]
+  Read --> Assist[ProAssist Search]
+  Read --> Feed[ProFeed Feedback]
+  Feed --> Insights[ProInsights Analytics]
+  Insights --> Publish
+```
+
+## Step 1 — Publish with structure
+
+Authors ship MDX with consistent headings, tags, and categories so search and AI retrieval stay accurate.
+
+## Step 2 — Capture reader signals
+
+ProFeed collects helpful votes, stars, and section-level comments. Anchored feedback tells writers exactly which paragraph missed the mark.
+
+## Step 3 — Prioritize with analytics
+
+ProInsights surfaces pages with high traffic but low satisfaction, failed searches, and rising negative sentiment.
+
+## Step 4 — Iterate and measure
+
+Writers update source content, merge, and watch health scores improve in the next release window.
+
+<Tip title="Portfolio note">
+This blog post demonstrates release-style communication—clear outcomes, a diagram, and actionable steps—typical of SaaS documentation programs.
+</Tip>
+
+## Related
+
+- [ProDocs Ecosystem Overview](/prodoc/platform-overview/ecosystem-overview)
+- [Feedback lifecycle](/prodoc/profeed/feedback-lifecycle)
+- [Documentation health score](/prodoc/proinsights/documentation-health-score)

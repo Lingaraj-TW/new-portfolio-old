@@ -1,0 +1,464 @@
+/**
+ * ProDocs theme — light/dark mode + documentation portal aliases.
+ */
+
+html.light {
+  --shadow-panel: var(--pds-shadow-panel-light);
+  --shadow-panel-sm: var(--pds-shadow-panel-sm-light);
+}
+
+html.light,
+html.light [data-portfolio-surface] {
+  --background: var(--pds-surface-light);
+  --foreground: var(--pds-text-light-primary);
+  --card: #ffffff;
+  --card-foreground: var(--pds-text-light-primary);
+  --elevated: var(--pds-surface-light-secondary);
+  --muted: var(--pds-surface-light-tertiary);
+  --muted-foreground: var(--pds-text-light-secondary);
+  --text-tertiary: var(--pds-text-light-tertiary);
+
+  --accent: var(--pds-purple-600);
+  --accent-hover: var(--pds-purple-500);
+  --accent-glow: var(--pds-accent-glow-light);
+  --accent-foreground: #ffffff;
+  --secondary-accent: var(--pds-pink-600);
+  --secondary-accent-glow: var(--pds-pink-glow-light);
+
+  --border: var(--pds-border-light);
+  --border-strong: var(--pds-border-light-strong);
+  --border-hover: var(--pds-border-light-hover);
+  --border-card: var(--pds-border-light);
+  --border-teal-hover: rgba(124, 34, 206, 0.25);
+  --ring: var(--pds-ring-light);
+
+  --link: var(--pds-purple-600);
+  --link-hover: var(--pds-purple-500);
+
+  --success: var(--pds-purple-600);
+  --success-foreground: #ffffff;
+
+  --surface-band: var(--pds-surface-light-secondary);
+  --surface-footer: var(--pds-surface-light-footer);
+  --nav-bg: var(--pds-nav-light);
+
+  --bg-primary: var(--pds-surface-light);
+  --bg-secondary: var(--pds-surface-light-secondary);
+  --bg-tertiary: var(--pds-surface-light-tertiary);
+  --bg-elevated: var(--pds-surface-light-secondary);
+
+  --text-primary: var(--pds-text-light-primary);
+  --text-secondary: var(--pds-text-light-secondary);
+
+  --accent-primary: var(--pds-purple-600);
+  --accent-secondary: var(--pds-pink-600);
+  --accent-gradient: linear-gradient(
+    135deg,
+    var(--pds-purple-600),
+    var(--pds-pink-600)
+  );
+  --accent-gradient-soft: linear-gradient(
+    135deg,
+    rgba(124, 34, 206, 0.1),
+    rgba(194, 24, 91, 0.1)
+  );
+  --accent-glow-purple: var(--pds-accent-glow-light);
+  --accent-glow-pink: var(--pds-pink-glow-light);
+
+  --border-primary: var(--pds-border-light);
+  --border-secondary: var(--pds-border-light-strong);
+  --border-accent: rgba(124, 34, 206, 0.25);
+  --border-accent-hover: rgba(194, 24, 91, 0.35);
+
+  --card-bg: #ffffff;
+  --card-border: var(--pds-border-light);
+  --card-hover-border: rgba(124, 34, 206, 0.25);
+  --card-hover-bg: rgba(124, 34, 206, 0.04);
+
+  --tag-bg: rgba(124, 34, 206, 0.08);
+  --tag-border: rgba(124, 34, 206, 0.2);
+  --tag-color: var(--pds-purple-600);
+
+  --scrollbar-color: rgba(124, 34, 206, 0.25);
+  --selection-bg: rgba(124, 34, 206, 0.15);
+}
+
+html.light body {
+  color-scheme: light;
+}
+
+/* ── Documentation portal — Docusaurus UX, ProDocs brand tokens ── */
+.docs-portal-root {
+  --docs-navbar-height: var(--pds-docs-navbar-height);
+  --docs-sidebar-width: var(--pds-docs-sidebar-width);
+
+  --docs-bg: var(--background);
+  --docs-fg: var(--foreground);
+  --docs-muted-fg: var(--muted-foreground);
+  --docs-border: var(--border);
+  --docs-sidebar-bg: var(--bg-secondary);
+  --docs-code-bg: var(--muted);
+  --docs-primary: var(--link);
+  --docs-primary-hover: var(--link-hover);
+  --docs-accent: var(--accent);
+  --docs-radius-sm: var(--pds-radius-sm);
+  --docs-radius-md: var(--pds-radius-md);
+
+  min-height: 100vh;
+  background: var(--docs-bg);
+  color: var(--docs-fg);
+  font-family: var(--pds-font-sans);
+}
+
+/* MDX + portal components inherit landing-page semantics */
+.docs-portal-root {
+  --foreground: var(--docs-fg);
+  --muted-foreground: var(--docs-muted-fg);
+  --accent: var(--docs-accent);
+  --border: var(--docs-border);
+  --background: var(--docs-bg);
+  --card: var(--docs-bg);
+  --link: var(--docs-primary);
+  --link-hover: var(--docs-primary-hover);
+}
+
+html.dark .docs-portal-root {
+  --card: var(--docs-sidebar-bg);
+}
+
+/* ── Docs typography scale (aligned with landing + Docusaurus hierarchy) ── */
+.docs-portal-root .prose {
+  --tw-prose-body: var(--docs-fg);
+  --tw-prose-headings: var(--docs-fg);
+  --tw-prose-lead: var(--docs-muted-fg);
+  --tw-prose-links: var(--docs-primary);
+  --tw-prose-bold: var(--docs-fg);
+  --tw-prose-counters: var(--docs-muted-fg);
+  --tw-prose-bullets: var(--docs-muted-fg);
+  --tw-prose-hr: var(--docs-border);
+  --tw-prose-quotes: var(--docs-fg);
+  --tw-prose-quote-borders: var(--docs-border);
+  --tw-prose-captions: var(--docs-muted-fg);
+  --tw-prose-code: var(--docs-fg);
+  --tw-prose-pre-code: var(--docs-fg);
+  --tw-prose-th-borders: var(--docs-border);
+  --tw-prose-td-borders: var(--docs-border);
+  max-width: var(--pds-docs-content-max);
+  color: var(--docs-fg);
+  font-family: var(--pds-font-sans);
+  line-height: 1.65;
+}
+
+.docs-portal-root .prose :where(h1, h2, h3, h4, h5, h6) {
+  color: var(--docs-fg);
+  font-family: var(--pds-font-sans);
+  letter-spacing: var(--pds-tracking-tight);
+}
+
+.docs-portal-root .prose h1 {
+  font-size: var(--pds-text-4xl);
+  font-weight: var(--pds-weight-bold);
+}
+
+.docs-portal-root .prose h2 {
+  font-size: var(--pds-text-2xl);
+  font-weight: var(--pds-weight-semibold);
+  border-bottom: 1px solid var(--docs-border);
+  padding-bottom: 0.35em;
+  margin-top: var(--pds-space-12);
+}
+
+.docs-portal-root .prose h3 {
+  font-size: var(--pds-text-xl);
+  font-weight: var(--pds-weight-semibold);
+  margin-top: var(--pds-space-8);
+}
+
+.docs-portal-root .prose h4 {
+  font-size: var(--pds-text-lg);
+  font-weight: var(--pds-weight-semibold);
+  margin-top: var(--pds-space-6);
+}
+
+.docs-portal-root .prose a {
+  color: var(--docs-primary);
+  font-weight: var(--pds-weight-medium);
+  text-decoration: none;
+}
+
+.docs-portal-root .prose a:hover {
+  color: var(--docs-primary-hover);
+  text-decoration: underline;
+}
+
+.docs-portal-root .prose :where(h1, h2, h3, h4, h5, h6) .anchor-link {
+  color: var(--docs-muted-fg);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.docs-portal-root .prose :where(h1, h2, h3, h4, h5, h6):hover .anchor-link {
+  opacity: 1;
+}
+
+.docs-portal-root .prose pre {
+  background: var(--docs-code-bg);
+  color: var(--docs-fg);
+  border: 1px solid var(--docs-border);
+  border-radius: var(--pds-radius-md);
+}
+
+.docs-portal-root .prose :where(pre code) {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: var(--pds-font-mono);
+}
+
+.docs-portal-root .prose :where(:not(pre) > code) {
+  background: var(--docs-code-bg);
+  border: 1px solid var(--docs-border);
+  color: var(--docs-fg);
+  border-radius: var(--pds-radius-sm);
+  font-family: var(--pds-font-mono);
+  font-size: 0.9em;
+}
+
+.docs-portal-root .prose table th {
+  background: var(--docs-sidebar-bg);
+  font-weight: var(--pds-weight-semibold);
+}
+
+.docs-portal-root .prose table th,
+.docs-portal-root .prose table td {
+  border-color: var(--docs-border);
+}
+
+/* ── Docs UI: sidebar labels, TOC, meta, footer ── */
+.docs-portal-root .pds-sidebar-label {
+  font-size: 0.6875rem;
+  font-weight: var(--pds-weight-semibold);
+  letter-spacing: var(--pds-tracking-wide);
+  text-transform: uppercase;
+  color: var(--docs-muted-fg);
+}
+
+.docs-portal-root .pds-nav-link {
+  border-radius: var(--pds-radius-sm);
+  font-size: var(--pds-text-sm);
+  font-weight: var(--pds-weight-medium);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.docs-portal-root .pds-nav-link--active {
+  color: var(--docs-primary);
+  font-weight: var(--pds-weight-semibold);
+}
+
+.docs-portal-root .pds-nav-link--idle {
+  color: var(--docs-muted-fg);
+}
+
+.docs-portal-root .pds-nav-link--idle:hover {
+  color: var(--docs-fg);
+}
+
+.docs-portal-root .doc-meta-tag {
+  background: var(--tag-bg);
+  color: var(--tag-color);
+  border: 1px solid var(--tag-border);
+  border-radius: var(--pds-radius-full);
+  font-size: var(--pds-text-xs);
+  font-weight: var(--pds-weight-medium);
+}
+
+.docs-portal-root .doc-toc-link-active {
+  color: var(--docs-primary);
+  font-weight: var(--pds-weight-medium);
+  border-color: var(--docs-primary);
+}
+
+.docs-portal-root .doc-toc-link {
+  color: var(--docs-muted-fg);
+  font-size: var(--pds-text-sm);
+}
+
+.docs-portal-root .doc-toc-link:hover {
+  color: var(--docs-fg);
+}
+
+.docs-portal-root .docs-footer {
+  border-top-color: var(--docs-border);
+  color: var(--docs-muted-fg);
+  font-size: var(--pds-text-xs);
+}
+
+/* ── MDX callouts (brand-tinted) ── */
+.docs-portal-root .pds-admonition {
+  border-radius: var(--pds-radius-md);
+  border-left-width: 4px;
+  padding: var(--pds-space-3) var(--pds-space-4);
+  margin-block: var(--pds-space-6);
+}
+
+.docs-portal-root .pds-admonition__title {
+  font-size: var(--pds-text-sm);
+  font-weight: var(--pds-weight-semibold);
+  color: var(--docs-fg);
+  margin-bottom: var(--pds-space-1);
+}
+
+.docs-portal-root .pds-admonition__body {
+  font-size: var(--pds-text-sm);
+  line-height: 1.6;
+  color: var(--docs-muted-fg);
+}
+
+.docs-portal-root .pds-admonition--note {
+  border-left-color: var(--pds-callout-note-border);
+  background: var(--pds-callout-note-bg);
+}
+
+.docs-portal-root .pds-admonition--tip {
+  border-left-color: var(--pds-callout-tip-border);
+  background: var(--pds-callout-tip-bg);
+}
+
+.docs-portal-root .pds-admonition--info {
+  border-left-color: var(--pds-callout-info-border);
+  background: var(--pds-callout-info-bg);
+}
+
+.docs-portal-root .pds-admonition--warning {
+  border-left-color: var(--pds-callout-warning-border);
+  background: var(--pds-callout-warning-bg);
+}
+
+.docs-portal-root .pds-admonition--danger {
+  border-left-color: var(--pds-callout-danger-border);
+  background: var(--pds-callout-danger-bg);
+}
+
+/* ── MDX tabs ── */
+.docs-portal-root .pds-tabs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pds-space-1);
+  border-bottom: 1px solid var(--docs-border);
+}
+
+.docs-portal-root .pds-tabs__trigger {
+  border-radius: var(--pds-radius-sm) var(--pds-radius-sm) 0 0;
+  padding: var(--pds-space-2) var(--pds-space-3);
+  font-size: var(--pds-text-sm);
+  font-weight: var(--pds-weight-medium);
+  color: var(--docs-muted-fg);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.docs-portal-root .pds-tabs__trigger:hover {
+  color: var(--docs-fg);
+}
+
+.docs-portal-root .pds-tabs__trigger--active {
+  color: var(--docs-fg);
+  border-bottom: 2px solid var(--docs-primary);
+}
+
+.docs-portal-root .pds-tabs__panel {
+  padding-top: var(--pds-space-4);
+  font-size: var(--pds-text-sm);
+  line-height: 1.6;
+}
+
+/* ── Search input ── */
+.docs-portal-root .pds-search-input {
+  height: 2.25rem;
+  width: 100%;
+  border-radius: var(--pds-radius-sm);
+  border: 1px solid var(--docs-border);
+  background: var(--docs-sidebar-bg);
+  padding-inline: 2.25rem var(--pds-space-3);
+  font-size: var(--pds-text-sm);
+  color: var(--docs-fg);
+}
+
+.docs-portal-root .pds-search-input::placeholder {
+  color: var(--docs-muted-fg);
+}
+
+.docs-portal-root .pds-search-input:focus {
+  outline: none;
+  border-color: var(--docs-primary);
+  box-shadow: 0 0 0 1px var(--docs-primary);
+}
+
+/* ── Logo ── */
+.docs-portal-root .docs-brand-logo {
+  mix-blend-mode: normal;
+  filter: none;
+}
+
+/* ProDoc hero logo (landing page) */
+html.light .prodoc-hero-svg {
+  mix-blend-mode: normal;
+  filter: drop-shadow(0 8px 28px rgba(124, 34, 206, 0.18))
+    drop-shadow(0 2px 8px rgba(124, 34, 206, 0.1));
+}
+
+html.dark .prodoc-hero-svg {
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 20px rgba(147, 51, 234, 0.45))
+    drop-shadow(0 0 40px rgba(236, 72, 153, 0.25));
+}
+
+/* ── Version selector ── */
+.docs-portal-root .pds-version-trigger {
+  background: var(--pds-version-surface);
+}
+
+.docs-portal-root .pds-version-menu {
+  background: var(--pds-version-surface);
+  box-shadow:
+    0 10px 38px rgba(0, 0, 0, 0.12),
+    0 0 0 1px var(--docs-border);
+}
+
+html.light .docs-portal-root {
+  --pds-version-surface: #ffffff;
+}
+
+html.dark .docs-portal-root {
+  --pds-version-surface: var(--pds-ink-900);
+}
+
+.docs-portal-root .pds-version-menu-item {
+  background: var(--pds-version-surface);
+}
+
+.docs-portal-root .pds-version-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--docs-primary) 12%, transparent);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--docs-primary);
+}
+
+.docs-portal-root .pds-version-trigger .pds-version-badge {
+  padding: 0.0625rem 0.375rem;
+  font-size: 0.5625rem;
+}
+
+.docs-portal-root .pds-version-banner {
+  background: color-mix(in srgb, var(--docs-primary) 8%, var(--docs-bg));
+}
+
+.docs-portal-root .pds-version-menu li + li {
+  border-top: 1px solid var(--docs-border);
+}

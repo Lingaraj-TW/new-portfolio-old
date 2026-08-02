@@ -2,13 +2,22 @@ import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
-import { highlightsJsonSizeOk, parseHighlights } from "@/lib/feedback/highlights";
+import {
+  highlightsJsonSizeOk,
+  parseHighlights,
+} from "@/lib/feedback/highlights";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { parseMessageBody } from "@/lib/profeed/parseBodyField";
+import {
+  sanitizeStringArray,
+  teamAllowedSet,
+  writerAllowedSet,
+} from "@/lib/profeed/constants";
 import { createServiceRoleClient } from "@/lib/supabase/service";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const BUCKET = "feedback-uploads";
-const MAX_FILES = 8;
-const MAX_FILE_BYTES = 4 * 1024 * 1024;
+const MAX_FILES = 12;
 
 const ALLOWED_ORIGINS = (process.env.PRODOC_ALLOWED_ORIGINS || "")
   .split(",")
@@ -28,8 +37,31 @@ function corsHeaders(origin: string | null): Record<string, string> {
   };
 }
 
+function maxBytesForMime(m: string) {
+  if (m.startsWith("video/")) return 100 * 1024 * 1024;
+  if (m.startsWith("audio/")) return 50 * 1024 * 1024;
+  if (m.startsWith("image/")) return 20 * 1024 * 1024;
+  return 15 * 1024 * 1024;
+}
+
 function allowedMime(m: string) {
-  return m.startsWith("image/") || m === "application/pdf" || m === "text/plain";
+  if (!m || m === "application/octet-stream") return true;
+  if (m.startsWith("image/")) return true;
+  if (m.startsWith("video/") || m.startsWith("audio/")) return true;
+  if (m === "application/pdf" || m === "text/plain") return true;
+  if (
+    m.includes("word") ||
+    m.includes("officedocument") ||
+    m.includes("msword")
+  )
+    return true;
+  if (
+    m === "application/zip" ||
+    m.includes("sheet") ||
+    m.includes("presentation")
+  )
+    return true;
+  return false;
 }
 
 function sanitizeFilename(name: string) {
@@ -43,96 +75,149 @@ type ParsedPayload = {
   visitor_session: string | null;
   rating: number | null;
   star_rating: number | null;
+  tagged_authors: string[];
+  tagged_teams: string[];
+  /** Legacy: first of each for DB columns */
   tagged_author: string | null;
   tagged_team: string | null;
+  voice_transcript: string | null;
   highlights: ReturnType<typeof parseHighlights>;
   files: File[];
 };
 
-async function parseRequest(request: Request): Promise<ParsedPayload | NextResponse> {
-  const contentType = request.headers.get("content-type") || "";
-
-  if (contentType.includes("multipart/form-data")) {
-    const form = await request.formData();
-    const page_path = String(form.get("page_path") || "").trim();
-    const section_anchorRaw = String(form.get("section_anchor") || "").trim();
-    const body = String(form.get("body") || "").trim().slice(0, 4000);
-    const visitor_session = String(form.get("visitor_session") || "")
-      .trim()
-      .slice(0, 200);
-    const ratingRaw = form.get("rating");
-    const starRaw = form.get("star_rating");
-    const tagged_author = String(form.get("tagged_author") || "")
-      .trim()
-      .slice(0, 120);
-    const tagged_team = String(form.get("tagged_team") || "").trim().slice(0, 120);
-    const highlightsRaw = String(form.get("highlights") || "[]");
-
-    let highlightsParsed: unknown;
+function parseStringArrayField(raw: unknown, max: number): string[] {
+  if (raw == null) return [];
+  if (typeof raw === "string") {
     try {
-      highlightsParsed = JSON.parse(highlightsRaw) as unknown;
+      const p = JSON.parse(raw) as unknown;
+      if (!Array.isArray(p)) return [];
+      return p
+        .filter((x) => typeof x === "string")
+        .map((s) => s.slice(0, 200))
+        .slice(0, max);
     } catch {
-      return NextResponse.json({ ok: false, error: "Invalid highlights JSON." }, {
-        status: 400,
-      });
+      return [];
     }
-
-    const rating =
-      ratingRaw === null || ratingRaw === ""
-        ? null
-        : Number(ratingRaw) === 1 || Number(ratingRaw) === -1
-          ? Number(ratingRaw)
-          : null;
-
-    const star_rating =
-      starRaw === null || starRaw === ""
-        ? null
-        : (() => {
-            const n = Number(starRaw);
-            return n >= 1 && n <= 5 ? n : null;
-          })();
-
-    const files = form
-      .getAll("files")
-      .filter((v): v is File => v instanceof File && v.size > 0);
-
-    return {
-      page_path,
-      section_anchor: section_anchorRaw ? section_anchorRaw.slice(0, 200) : null,
-      body,
-      visitor_session: visitor_session || null,
-      rating,
-      star_rating,
-      tagged_author: tagged_author || null,
-      tagged_team: tagged_team || null,
-      highlights: parseHighlights(highlightsParsed),
-      files,
-    };
   }
+  return [];
+}
 
-  let json: Record<string, unknown>;
+async function parseMultipartRequest(
+  form: FormData,
+): Promise<ParsedPayload | NextResponse> {
+  const page_path = String(form.get("page_path") || "").trim();
+  const section_anchorRaw = String(form.get("section_anchor") || "").trim();
+  const bodyFormat = String(form.get("body_format") || "html").toLowerCase();
+  const bodyRaw = String(form.get("body") || "");
+  const visitor_session = String(form.get("visitor_session") || "")
+    .trim()
+    .slice(0, 200);
+  const ratingRaw = form.get("rating");
+  const starRaw = form.get("star_rating");
+  const highlightsRaw = String(form.get("highlights") || "[]");
+
+  const voice = String(form.get("voice_transcript") || "")
+    .trim()
+    .slice(0, 8_000);
+
+  const allowWriters = writerAllowedSet();
+  const allowTeams = teamAllowedSet();
+  const tagsA = sanitizeStringArray(
+    parseStringArrayField(form.get("tagged_authors"), 32),
+    allowWriters,
+    32,
+  );
+  const tagsT = sanitizeStringArray(
+    parseStringArrayField(form.get("tagged_teams"), 32),
+    allowTeams,
+    32,
+  );
+
+  let highlightsParsed: unknown;
   try {
-    json = (await request.json()) as Record<string, unknown>;
+    highlightsParsed = JSON.parse(highlightsRaw) as unknown;
   } catch {
-    return NextResponse.json({ ok: false, error: "Invalid JSON." }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Invalid highlights JSON." },
+      { status: 400 },
+    );
   }
 
-  const page_path = typeof json.page_path === "string" ? json.page_path.trim() : "";
+  const nRating = Number(ratingRaw);
+  const rating =
+    ratingRaw === null || ratingRaw === ""
+      ? null
+      : nRating === 0 || nRating === 1 || nRating === -1
+        ? nRating
+        : null;
+
+  const star_rating =
+    starRaw === null || starRaw === ""
+      ? null
+      : (() => {
+          const n = Number(starRaw);
+          return n >= 1 && n <= 5 ? n : null;
+        })();
+
+  const { body, error: bodyErr } = parseMessageBody(bodyRaw, bodyFormat);
+  if (bodyErr) {
+    return NextResponse.json({ ok: false, error: bodyErr }, { status: 400 });
+  }
+
+  const files = form
+    .getAll("files")
+    .filter((v): v is File => v instanceof File && v.size > 0);
+
+  return {
+    page_path,
+    section_anchor: section_anchorRaw
+      ? section_anchorRaw.slice(0, 200)
+      : null,
+    body,
+    visitor_session: visitor_session || null,
+    rating,
+    star_rating,
+    tagged_authors: tagsA,
+    tagged_teams: tagsT,
+    tagged_author: tagsA[0] ?? null,
+    tagged_team: tagsT[0] ?? null,
+    voice_transcript: voice || null,
+    highlights: parseHighlights(highlightsParsed),
+    files,
+  };
+}
+
+function parseJsonRequest(
+  json: Record<string, unknown>,
+): ParsedPayload | NextResponse {
+  const page_path =
+    typeof json.page_path === "string" ? json.page_path.trim() : "";
   const section_anchor =
     typeof json.section_anchor === "string" && json.section_anchor.trim()
       ? json.section_anchor.trim().slice(0, 200)
       : null;
-  const body =
-    typeof json.body === "string" ? json.body.trim().slice(0, 4000) : "";
+  const bodyFormat =
+    typeof json.body_format === "string"
+      ? json.body_format.toLowerCase()
+      : "html";
+  const bodyRaw = typeof json.body === "string" ? json.body : "";
+  const { body, error: bodyJsonErr } = parseMessageBody(bodyRaw, bodyFormat);
+  if (bodyJsonErr) {
+    return NextResponse.json(
+      { ok: false, error: bodyJsonErr },
+      { status: 400 },
+    );
+  }
   const visitor_session =
     typeof json.visitor_session === "string" && json.visitor_session.trim()
       ? json.visitor_session.trim().slice(0, 200)
       : null;
 
+  const nRatingJ = Number(json.rating);
   const rating =
     json.rating === 1 || json.rating === -1
-      ? json.rating
-      : json.rating === 0
+      ? (json.rating as number)
+      : json.rating === 0 || nRatingJ === 0
         ? 0
         : null;
 
@@ -141,13 +226,26 @@ async function parseRequest(request: Request): Promise<ParsedPayload | NextRespo
     return n >= 1 && n <= 5 ? n : null;
   })();
 
-  const tagged_author =
-    typeof json.tagged_author === "string"
-      ? json.tagged_author.trim().slice(0, 120) || null
-      : null;
-  const tagged_team =
-    typeof json.tagged_team === "string"
-      ? json.tagged_team.trim().slice(0, 120) || null
+  const allowWritersJ = writerAllowedSet();
+  const allowTeamsJ = teamAllowedSet();
+  const jAuthors = Array.isArray(json.tagged_authors)
+    ? json.tagged_authors
+    : [];
+  const jTeams = Array.isArray(json.tagged_teams) ? json.tagged_teams : [];
+  const tagsA = sanitizeStringArray(
+    jAuthors.filter((x) => typeof x === "string") as string[],
+    allowWritersJ,
+    32,
+  );
+  const tagsT = sanitizeStringArray(
+    jTeams.filter((x) => typeof x === "string") as string[],
+    allowTeamsJ,
+    32,
+  );
+
+  const voice_transcript =
+    typeof json.voice_transcript === "string"
+      ? json.voice_transcript.trim().slice(0, 8_000) || null
       : null;
 
   const highlights = parseHighlights(json.highlights);
@@ -159,11 +257,37 @@ async function parseRequest(request: Request): Promise<ParsedPayload | NextRespo
     visitor_session,
     rating,
     star_rating,
-    tagged_author,
-    tagged_team,
+    tagged_authors: tagsA,
+    tagged_teams: tagsT,
+    tagged_author: tagsA[0] ?? null,
+    tagged_team: tagsT[0] ?? null,
+    voice_transcript,
     highlights,
     files: [],
   };
+}
+
+async function parseRequest(
+  request: Request,
+): Promise<ParsedPayload | NextResponse> {
+  const contentType = request.headers.get("content-type") || "";
+
+  if (contentType.includes("multipart/form-data")) {
+    const form = await request.formData();
+    return parseMultipartRequest(form);
+  }
+
+  let json: Record<string, unknown>;
+  try {
+    json = (await request.json()) as Record<string, unknown>;
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Invalid JSON." },
+      { status: 400 },
+    );
+  }
+
+  return parseJsonRequest(json);
 }
 
 function validatePayload(p: ParsedPayload): string | null {
@@ -178,13 +302,21 @@ function validatePayload(p: ParsedPayload): string | null {
     "/proinsights",
     "/_next",
   ];
-  if (blockedPrefixes.some((prefix) => p.page_path === prefix || p.page_path.startsWith(`${prefix}/`))) {
+  if (
+    blockedPrefixes.some(
+      (prefix) =>
+        p.page_path === prefix || p.page_path.startsWith(`${prefix}/`),
+    )
+  ) {
     return "Feedback is not accepted for this page.";
   }
-  if (p.rating === null && p.star_rating === null) {
-    return "Add a helpful / not helpful vote or a 1–5 star rating.";
+  if (p.star_rating === null) {
+    return "Page quality: choose a 1–5 star rating.";
   }
-  if (p.rating !== null && p.rating !== 1 && p.rating !== -1 && p.rating !== 0) {
+  if (p.rating === null) {
+    return "Helpfulness: choose Helpful, Not helpful, or Neutral.";
+  }
+  if (p.rating !== 0 && p.rating !== 1 && p.rating !== -1) {
     return "Invalid helpfulness rating.";
   }
   if (!highlightsJsonSizeOk(p.highlights)) {
@@ -199,8 +331,9 @@ async function uploadAttachments(
   files: File[],
 ) {
   for (const file of files.slice(0, MAX_FILES)) {
-    if (file.size > MAX_FILE_BYTES) continue;
     if (!allowedMime(file.type)) continue;
+    const cap = maxBytesForMime(file.type);
+    if (file.size > cap) continue;
     const safe = sanitizeFilename(file.name);
     const path = `${feedbackId}/${randomUUID()}-${safe}`;
     const buf = Buffer.from(await file.arrayBuffer());
@@ -214,16 +347,57 @@ async function uploadAttachments(
       ? "screenshot"
       : "file";
 
-    const { error: rowErr } = await service.from("feedback_attachments").insert({
-      feedback_id: feedbackId,
-      storage_path: path,
-      file_name: file.name.slice(0, 240),
-      mime_type: (file.type || "application/octet-stream").slice(0, 120),
-      kind,
-      byte_size: file.size,
-    });
+    const { error: rowErr } = await service
+      .from("feedback_attachments")
+      .insert({
+        feedback_id: feedbackId,
+        storage_path: path,
+        file_name: file.name.slice(0, 240),
+        mime_type: (file.type || "application/octet-stream").slice(0, 120),
+        kind,
+        byte_size: file.size,
+      });
     if (rowErr) throw new Error(rowErr.message);
   }
+}
+
+type FeedbackRowInsert = {
+  page_path: string;
+  section_anchor: string | null;
+  body: string;
+  rating: number | null;
+  star_rating: number | null;
+  tagged_author: string | null;
+  tagged_team: string | null;
+  tagged_authors: string[];
+  tagged_teams: string[];
+  voice_transcript: string | null;
+  highlights: ReturnType<typeof parseHighlights>;
+  visitor_session: string | null;
+  status: "open";
+  submitted_by: string | null;
+};
+
+function buildRow(
+  p: ParsedPayload,
+  submittedBy: string | null,
+): FeedbackRowInsert {
+  return {
+    page_path: p.page_path,
+    section_anchor: p.section_anchor,
+    body: p.body,
+    rating: p.rating,
+    star_rating: p.star_rating,
+    tagged_author: p.tagged_author,
+    tagged_team: p.tagged_team,
+    tagged_authors: p.tagged_authors,
+    tagged_teams: p.tagged_teams,
+    voice_transcript: p.voice_transcript,
+    highlights: p.highlights,
+    visitor_session: p.visitor_session,
+    status: "open" as const,
+    submitted_by: submittedBy,
+  };
 }
 
 export async function POST(request: Request) {
@@ -244,20 +418,25 @@ export async function POST(request: Request) {
   }
 
   const err = validatePayload(parsed);
-  if (err) return NextResponse.json({ ok: false, error: err }, { status: 400, headers: cors });
+  if (err) {
+    return NextResponse.json(
+      { ok: false, error: err },
+      { status: 400, headers: cors },
+    );
+  }
 
-  const row = {
-    page_path: parsed.page_path,
-    section_anchor: parsed.section_anchor,
-    body: parsed.body,
-    rating: parsed.rating,
-    star_rating: parsed.star_rating,
-    tagged_author: parsed.tagged_author,
-    tagged_team: parsed.tagged_team,
-    highlights: parsed.highlights,
-    visitor_session: parsed.visitor_session,
-    status: "open" as const,
-  };
+  let submittedBy: string | null = null;
+  try {
+    const supa = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supa.auth.getUser();
+    submittedBy = user?.id ?? null;
+  } catch {
+    submittedBy = null;
+  }
+
+  const row = buildRow(parsed, submittedBy);
 
   const service = createServiceRoleClient();
 
@@ -293,9 +472,16 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ ok: true, id: feedbackId, editSecret }, { headers: cors });
+    return NextResponse.json(
+      { ok: true, id: feedbackId, editSecret },
+      { headers: cors },
+    );
   }
 
+  /*
+   * Using anon key client — RLS applies here. Insert may fail silently
+   * if RLS blocks anonymous writes.
+   */
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -313,7 +499,22 @@ export async function POST(request: Request) {
     );
   }
 
-  const { error } = await supabase.from("feedback").insert(row);
+  const { error } = await supabase.from("feedback").insert({
+    page_path: row.page_path,
+    section_anchor: row.section_anchor,
+    body: row.body,
+    rating: row.rating,
+    star_rating: row.star_rating,
+    tagged_author: row.tagged_author,
+    tagged_team: row.tagged_team,
+    tagged_authors: row.tagged_authors,
+    tagged_teams: row.tagged_teams,
+    voice_transcript: row.voice_transcript,
+    highlights: row.highlights,
+    visitor_session: row.visitor_session,
+    status: row.status,
+    submitted_by: row.submitted_by,
+  });
   if (error) {
     return NextResponse.json(
       { ok: false, error: error.message || "Insert failed." },

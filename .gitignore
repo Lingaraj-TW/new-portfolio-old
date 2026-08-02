@@ -22,6 +22,7 @@
 
 # misc
 .DS_Store
+/tmp/
 *.pem
 
 # debug
@@ -37,10 +38,13 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local IDE / agent state
+.cursor/
+
 # gitnexus (local knowledge graph)
 /.gitnexus
+.gitnexus
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-.gitnexus

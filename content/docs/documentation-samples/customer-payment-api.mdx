@@ -1,0 +1,239 @@
+---
+title: Customer Payment API Integration
+description: REST API reference for customer payment integration — authentication, endpoints, request/response schemas, error codes, and rate limits.
+nav_order: 10
+authors: [Linga Raj M]
+team: ProDoc
+tags: [api, payments, integration, rest]
+last_updated: March 2026
+category: API
+---
+
+# Customer Payment API Integration
+
+This guide documents the **Customer Payment API** (`/v2/payments`) for integrating copay collection, premium billing, and reimbursement status into your member portal or mobile app.
+
+## Base URL
+
+```
+https://api.claims.your-domain.com/v2
+```
+
+All requests require TLS 1.2+. JSON request and response bodies use `Content-Type: application/json`.
+
+## Authentication
+
+The Payment API uses **OAuth 2.0 client credentials** with scoped access tokens.
+
+### Obtain an access token
+
+```http
+POST /oauth/token HTTP/1.1
+Host: api.claims.your-domain.com
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&client_id={client_id}
+&client_secret={client_secret}
+&scope=payments.read payments.write
+```
+
+**Response:**
+
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIs...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "payments.read payments.write"
+}
+```
+
+Include the token in all subsequent requests:
+
+```http
+Authorization: Bearer {access_token}
+```
+
+<Note title="Scope requirements">
+`payments.read` — required for GET endpoints  
+`payments.write` — required for POST endpoints (create payment, refund)  
+Request least-privilege scopes from your administrator.
+</Note>
+
+## Endpoints
+
+### Create payment intent
+
+Creates a payment intent for member copay or premium collection.
+
+```http
+POST /v2/payments/intents HTTP/1.1
+Host: api.claims.your-domain.com
+Authorization: Bearer {access_token}
+Content-Type: application/json
+Idempotency-Key: {unique_key}
+
+{
+  "member_id": "MBR-2026-0048217",
+  "amount": 5000,
+  "currency": "usd",
+  "description": "Copay — Office visit 2026-03-10",
+  "claim_id": "CLM-2026-1182934",
+  "payment_method": "card",
+  "metadata": {
+    "source": "member_portal",
+    "visit_date": "2026-03-10"
+  }
+}
+```
+
+| Field | Type | Required | Description |
+| ----- | ---- | -------- | ----------- |
+| `member_id` | string | Yes | Member identifier |
+| `amount` | integer | Yes | Amount in cents (e.g., 5000 = $50.00) |
+| `currency` | string | Yes | ISO 4217 code (currently `usd` only) |
+| `description` | string | Yes | Human-readable description (max 255 chars) |
+| `claim_id` | string | No | Associated claim ID |
+| `payment_method` | string | Yes | `card` or `ach` |
+| `metadata` | object | No | Key-value pairs for tracking |
+
+**Response (201 Created):**
+
+```json
+{
+  "id": "pi_20260315143022_a8f3",
+  "status": "requires_confirmation",
+  "amount": 5000,
+  "currency": "usd",
+  "member_id": "MBR-2026-0048217",
+  "claim_id": "CLM-2026-1182934",
+  "client_secret": "pi_secret_abc123...",
+  "created_at": "2026-03-15T14:30:22Z",
+  "expires_at": "2026-03-15T15:30:22Z"
+}
+```
+
+Use `client_secret` with Stripe.js on the client side to confirm the payment.
+
+### Get payment status
+
+```http
+GET /v2/payments/intents/{payment_intent_id} HTTP/1.1
+Host: api.claims.your-domain.com
+Authorization: Bearer {access_token}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "id": "pi_20260315143022_a8f3",
+  "status": "succeeded",
+  "amount": 5000,
+  "currency": "usd",
+  "member_id": "MBR-2026-0048217",
+  "claim_id": "CLM-2026-1182934",
+  "stripe_intent_id": "pi_3ABC123",
+  "created_at": "2026-03-15T14:30:22Z",
+  "confirmed_at": "2026-03-15T14:31:05Z"
+}
+```
+
+### List payments for a member
+
+```http
+GET /v2/payments/intents?member_id=MBR-2026-0048217&limit=20&offset=0 HTTP/1.1
+Host: api.claims.your-domain.com
+Authorization: Bearer {access_token}
+```
+
+### Refund a payment
+
+```http
+POST /v2/payments/intents/{payment_intent_id}/refund HTTP/1.1
+Host: api.claims.your-domain.com
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+  "amount": 5000,
+  "reason": "duplicate_charge"
+}
+```
+
+Requires `payments.write` scope and `payments.refund` permission.
+
+## Error codes
+
+| HTTP code | Error code | Description | Action |
+| --------- | ---------- | ----------- | ------ |
+| 400 | `invalid_amount` | Amount is zero, negative, or exceeds limit | Verify amount in cents; check `ICP_MAX_CHARGE_AMOUNT` |
+| 400 | `invalid_member` | Member ID not found | Verify member exists and is active |
+| 401 | `unauthorized` | Missing or expired token | Refresh OAuth token |
+| 403 | `insufficient_scope` | Token lacks required scope | Request `payments.write` from admin |
+| 404 | `payment_not_found` | Payment intent ID does not exist | Verify ID; check tenant scope |
+| 409 | `duplicate_request` | Idempotency key already used | Use existing payment intent from original response |
+| 422 | `payment_failed` | Stripe rejected the payment | Check `failure_code` in response body |
+| 429 | `rate_limit_exceeded` | Too many requests | Back off; see Rate limits |
+| 500 | `internal_error` | Server error | Retry with exponential backoff; contact support if persistent |
+
+**Error response format:**
+
+```json
+{
+  "error": {
+    "code": "invalid_amount",
+    "message": "Amount must be between 100 and 5000000 cents",
+    "details": {
+      "field": "amount",
+      "provided": 0,
+      "min": 100,
+      "max": 5000000
+    }
+  }
+}
+```
+
+## Rate limits
+
+| Tier | Requests/minute | Burst |
+| ---- | --------------- | ----- |
+| Standard | 200 | 50 |
+| Enterprise | 500 | 100 |
+
+Rate limit headers are included in every response:
+
+```http
+X-RateLimit-Limit: 200
+X-RateLimit-Remaining: 187
+X-RateLimit-Reset: 1710510060
+```
+
+When rate limited, the API returns `429` with a `Retry-After` header (seconds).
+
+<Tip title="Use idempotency keys">
+Always send an `Idempotency-Key` header on POST requests. This prevents duplicate charges during retries. Keys expire after 24 hours.
+</Tip>
+
+## OpenAPI specification
+
+Download the full OpenAPI 3.1 spec from the Customer Portal or fetch it directly:
+
+```bash
+curl -H "Authorization: Bearer {access_token}" \
+  https://api.claims.your-domain.com/v2/openapi.json \
+  -o payment-api-v2.openapi.json
+```
+
+Import into Postman, Insomnia, or your API gateway for interactive testing.
+
+## Related documentation
+
+- [Payment Gateway Configuration](/prodoc/documentation-samples/payment-gateway-configuration)
+- [Common Payment Processing Issues](/prodoc/documentation-samples/payment-troubleshooting)
+- [DEF-2458 Duplicate Payment Processing](/prodoc/documentation-samples/def-2458-duplicate-payment)
+
+---
+
+[← Back to documentation samples](/prodoc/documentation-samples)

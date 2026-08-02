@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
-export default function PortalLoginPage() {
-  redirect("/profeed/portal/login");
+/** Legacy URL — public portal view needs no login. */
+export default function PortalLoginRedirectPage() {
+  redirect("/profeed/portal");
 }

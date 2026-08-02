@@ -1,0 +1,78 @@
+---
+title: How I work
+description: Documentation methodology — audience-first structure, docs-as-code, SME validation, and feedback loops.
+nav_order: 3
+authors:
+  - Linga Raj M
+team: Portfolio
+---
+
+# How I work
+
+This page describes how I approach documentation projects — the practices behind the writing samples in this portfolio and the ProDocs Ecosystem demo on this site.
+
+## Learn by doing
+
+I validate documentation by implementing the workflows I describe. For API guides, that means authenticating, calling endpoints, and capturing real responses. For deployment runbooks, that means running the steps in a test environment before publication. Hands-on verification surfaces gaps between engineering intent and user reality early — before customers hit them in production.
+
+## Audience-first information architecture
+
+I structure content using frameworks like **Diátaxis** (tutorials, how-to guides, explanations, reference) so readers find the right content type for their task:
+
+- **Tutorials** — guided first success for new users
+- **How-to guides** — goal-oriented steps for practitioners who know the basics
+- **Explanation** — concepts and architecture for decision-makers
+- **Reference** — precise, lookup-oriented API and configuration details
+
+Navigation, headings, and cross-links follow how users actually search — not how the engineering org chart is organized.
+
+## Docs-as-code workflow
+
+Content lives in Git alongside the product:
+
+1. Branch from `main` for each doc change
+2. Author in Markdown/MDX with frontmatter for metadata (title, description, nav order, author/team tags)
+3. Peer review in pull requests — same rigor as code
+4. Merge triggers build and publish
+5. Track feedback and analytics to prioritize the next iteration
+
+This portfolio site is built the same way — every page under [`content/docs/`](https://github.com/lingaraj-tw/prodoc/tree/main/content/docs) is version-controlled MDX rendered by ProDoc.
+
+## SME collaboration
+
+I treat subject-matter experts as partners, not bottlenecks:
+
+- Prepare focused interview agendas with draft outlines
+- Capture decisions in shared docs so context isn't lost between releases
+- Route technical accuracy reviews to the right engineer with specific questions, not open-ended "please review"
+- Close the loop — notify SMEs when their input ships
+
+## Quality and governance
+
+Before content reaches readers:
+
+- **Style consistency** — terminology glossaries, tone profiles, and approved snippet libraries
+- **Structural checks** — prerequisites stated upfront, steps numbered, outcomes verifiable
+- **Accessibility** — heading hierarchy, alt text, keyboard-navigable examples
+- **Feedback integration** — reader comments and support tickets feed the backlog
+
+## Feedback-driven improvement
+
+Static documentation decays. I design for continuous improvement:
+
+1. Readers submit section-level feedback (helpful / not helpful, comments, highlights)
+2. Triage teams prioritize and resolve issues
+3. Analytics reveal patterns — which pages fail, which sections confuse
+4. Writers update content and measure whether feedback trends improve
+
+The ProDocs Ecosystem on this site demonstrates that loop: [ProDoc](/prodoc/getting-started/intro) for content, [ProFeed](/profeed) for triage, [ProInsights](/proinsights) for analytics.
+
+## What I optimize for
+
+- **Self-sufficiency** — users complete tasks without opening a support ticket
+- **Accuracy at release** — docs ship with the feature, not weeks after
+- **Measurable outcomes** — fewer escalations, faster time-to-first-success, cleaner releases
+
+---
+
+[← Back to writing samples](/prodoc/samples)

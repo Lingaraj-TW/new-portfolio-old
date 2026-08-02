@@ -1,0 +1,247 @@
+---
+title: Common Payment Processing Issues
+description: Troubleshooting guide for common payment processing issues — symptoms, root causes, and resolution steps using collapsible playbooks.
+nav_order: 13
+authors: [Linga Raj M]
+team: ProDoc
+tags: [payments, troubleshooting, stripe, errors]
+last_updated: March 2026
+category: Troubleshooting
+---
+
+# Common Payment Processing Issues
+
+This guide covers the most frequently reported payment processing issues in the Insurance Claims Platform. Each section follows a **symptom → cause → resolution** pattern.
+
+Before troubleshooting, confirm your tenant is running **v5.4.0 or later** and that [Payment Gateway Configuration](/prodoc/documentation-samples/payment-gateway-configuration) is complete.
+
+<Note title="Check system status first">
+Visit the ProDoc Status Page or run `icp-cli health --component payments` before deep troubleshooting. Active incidents are posted there with ETAs.
+</Note>
+
+---
+
+<Collapse title="Payment fails with 'Card declined' for valid cards" defaultOpen={true}>
+
+**Symptom**
+
+Members report that valid credit cards are declined during copay or premium payment. The error message reads: *"Your card was declined. Please try a different payment method."*
+
+**Common causes**
+
+1. **Stripe account not activated for live charges** — Test mode keys used in production environment
+2. **Card issuer block** — Bank flagged the charge as unusual (common for first-time healthcare payments)
+3. **Amount exceeds limit** — Charge exceeds `ICP_MAX_CHARGE_AMOUNT` or Stripe account limits
+4. **AVS mismatch** — Billing ZIP code does not match card issuer records
+5. **Expired card on file** — Saved payment method has expired
+
+**Resolution**
+
+1. Verify environment keys are live mode (`pk_live_`, `sk_live_`) — not test keys
+2. Ask the member to contact their bank to authorize healthcare charges
+3. Check the charge amount against tenant limits:
+
+```bash
+icp-cli config get ICP_MAX_CHARGE_AMOUNT
+```
+
+4. Ask the member to re-enter billing ZIP exactly as shown on their card statement
+5. Prompt the member to update their saved payment method in **Profile → Payment Methods**
+
+**Verification**
+
+Process a $1.00 test charge (auto-refunded):
+
+```bash
+icp-cli payments test --mode live --amount 1.00
+```
+
+</Collapse>
+
+<Collapse title="Webhook events not updating payment ledger">
+
+**Symptom**
+
+Payments succeed in the Stripe Dashboard but the ICP payment ledger shows status `pending` or `failed`. Finance reconciliation reports discrepancies.
+
+**Common causes**
+
+1. **Webhook endpoint not registered** or pointing to wrong URL
+2. **Webhook signing secret mismatch** — secret in vault does not match Stripe Dashboard
+3. **Firewall blocking inbound webhooks** from Stripe IP ranges
+4. **Webhook endpoint returning non-200** — application error during event processing
+5. **API version mismatch** between Stripe webhook config and ICP expectation
+
+**Resolution**
+
+1. Verify webhook URL in Stripe Dashboard: `https://claims.your-domain.com/api/webhooks/stripe`
+2. Compare signing secret in vault vs. Stripe Dashboard → Webhooks → Signing secret
+3. Allowlist Stripe webhook IPs on your firewall (see [Stripe IP documentation](https://stripe.com/docs/ips))
+4. Check application logs for webhook processing errors:
+
+```bash
+icp-cli logs --component webhook --since 1h --filter "stripe"
+```
+
+5. Confirm webhook API version is `2024-11-20.acacia`
+
+**Verification**
+
+Send a test webhook from Stripe Dashboard → Webhooks → Send test webhook. Confirm HTTP 200 response and ledger update.
+
+</Collapse>
+
+<Collapse title="Duplicate charges on member accounts">
+
+**Symptom**
+
+Members report being charged twice for the same copay or premium payment. Duplicate entries appear in the payment ledger with the same amount and timestamp.
+
+**Common causes**
+
+1. **Running v5.2.0 – v5.3.2** — Known defect DEF-2458 (fixed in v5.4.0)
+2. **Missing idempotency keys** — Integration not sending `Idempotency-Key` header
+3. **Member double-clicking submit** — UI did not disable button after first click
+4. **Retry logic in custom integration** — Client-side retry without idempotency
+
+**Resolution**
+
+1. **Upgrade to v5.4.0 immediately** if on affected versions — see [DEF-2458](/prodoc/documentation-samples/def-2458-duplicate-payment)
+2. Ensure all API integrations send `Idempotency-Key` header on POST requests
+3. Run duplicate detection for the affected period:
+
+```bash
+icp-cli payments detect-duplicates --since 2026-01-01 --output csv
+```
+
+4. Process refunds for confirmed duplicates:
+
+```bash
+icp-cli payments refund --intent-id pi_xxx --reason duplicate_charge
+```
+
+**Verification**
+
+After upgrade, run the duplicate retry test:
+
+```bash
+icp-cli payments test --scenario duplicate-retry --mode test
+```
+
+</Collapse>
+
+<Collapse title="ACH payments failing with 'Account closed'">
+
+**Symptom**
+
+Recurring premium ACH debits fail with Stripe error `account_closed` or `no_account`. Members receive failure notification emails.
+
+**Common causes**
+
+1. **Member changed bank accounts** without updating payment method
+2. **Bank account not authorized for ACH debits** — Some savings accounts block debits
+3. **Insufficient funds** at time of debit (reported as `insufficient_funds`, not `account_closed`)
+4. **Micro-deposit verification incomplete** — New ACH account not verified
+
+**Resolution**
+
+1. Ask the member to update their bank account in **Profile → Payment Methods**
+2. Confirm the account type is **checking** (not savings) if the bank blocks savings debits
+3. For new ACH accounts, verify micro-deposit confirmation was completed
+4. Retry the failed payment after the member updates their method:
+
+```bash
+icp-cli payments retry --intent-id pi_xxx
+```
+
+**Verification**
+
+Confirm the next scheduled debit succeeds in the payment ledger and Stripe Dashboard.
+
+</Collapse>
+
+<Collapse title="Reimbursement transfers stuck in 'Pending'">
+
+**Symptom**
+
+Claim reimbursement transfers to member bank accounts remain in `pending` status for more than 5 business days. Members call asking when they will receive funds.
+
+**Common causes**
+
+1. **Stripe Connect account not onboarded** — Member has not completed Express account setup
+2. **Payout schedule delay** — Platform configured with 2-day payout delay
+3. **Transfer amount below minimum** — Stripe minimum transfer is $0.50
+4. **Bank account verification pending** — Member's linked account awaiting verification
+5. **Compliance hold** — Large transfer flagged for review (&gt; $10,000)
+
+**Resolution**
+
+1. Check member's Connect account status in Stripe Dashboard → Connect → Accounts
+2. Verify payout schedule: Admin Console → Finance → Payout Settings
+3. Confirm transfer amount meets minimum threshold
+4. For compliance holds, contact ProDoc Support with the transfer ID for manual review
+5. If Connect onboarding is incomplete, send the member the onboarding link:
+
+```bash
+icp-cli payments connect-link --member-id MBR-2026-0048217
+```
+
+**Verification**
+
+Transfer status changes to `paid` in both Stripe Dashboard and ICP payment ledger within the configured payout schedule.
+
+</Collapse>
+
+<Collapse title="Payment API returning 429 Rate Limit Exceeded">
+
+**Symptom**
+
+Integration logs show frequent `429 Too Many Requests` responses from `/v2/payments/intents`. Batch payment processing jobs fail intermittently.
+
+**Common causes**
+
+1. **Batch job exceeds 200 req/min limit** — Default rate limit for standard tier
+2. **Missing exponential backoff** — Client retries immediately on 429
+3. **Multiple integrations sharing one API key** — Combined traffic exceeds limit
+4. **Polling payment status too aggressively** — GET requests count toward limit
+
+**Resolution**
+
+1. Implement exponential backoff respecting the `Retry-After` header
+2. Reduce batch concurrency — process payments in chunks of 50 with 15-second pauses
+3. Request separate API keys for each integration to isolate rate limit buckets
+4. Use webhooks instead of polling for payment status updates
+5. Contact ProDoc Support to upgrade to Enterprise tier (500 req/min) if sustained throughput requires it
+
+**Verification**
+
+Monitor rate limit headers in responses:
+
+```http
+X-RateLimit-Remaining: 187
+X-RateLimit-Reset: 1710510060
+```
+
+Remaining count should stay above 20 during batch processing.
+
+</Collapse>
+
+## Escalation
+
+If none of the above resolutions fix your issue:
+
+1. Collect logs: `icp-cli logs --component payments --since 24h --output json > payment-logs.json`
+2. Note the affected payment intent IDs and member IDs
+3. Open a support ticket with severity **High** (payment impact) at support@prodoc.io
+4. Reference this article and the specific Collapse section you followed
+
+## Related documentation
+
+- [Payment Gateway Configuration](/prodoc/documentation-samples/payment-gateway-configuration)
+- [Customer Payment API Integration](/prodoc/documentation-samples/customer-payment-api)
+- [DEF-2458 Duplicate Payment Processing](/prodoc/documentation-samples/def-2458-duplicate-payment)
+- [Release Notes v5.4.0](/prodoc/documentation-samples/release-notes-v5-4-0)
+
+---
+
+[← Back to documentation samples](/prodoc/documentation-samples)

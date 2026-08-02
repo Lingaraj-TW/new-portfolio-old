@@ -1,0 +1,61 @@
+---
+title: Managing customer feedback
+description: Operational practices for routing, prioritizing, and responding to reader feedback at scale.
+nav_order: 3
+authors: [Linga Raj M]
+team: ProFeed
+tags: [profeed, operations, triage, customer-feedback]
+last_updated: March 2026
+---
+
+# Managing customer feedback
+
+Enterprise documentation teams receive feedback from customers, partners, internal support, and onboarding cohorts. ProFeed centralizes these signals so nothing falls through Slack threads or stale Jira tickets.
+
+## Intake channels
+
+All feedback originates from the ProDoc widget, but routing differs by audience:
+
+<Tabs defaultValue="external">
+  <Tab label="External customers" value="external">
+    Tag submissions with the customer team chip. Route high-severity "not helpful" votes on getting-started pages to onboarding within 48 hours.
+  </Tab>
+  <Tab label="Internal support" value="internal">
+    Support engineers often attach screenshots and section highlights. Use **Details** view to inspect pinned text before opening **Edit on GitHub**.
+  </Tab>
+  <Tab label="Partner engineers" value="partners">
+    API and integration pages generate the highest volume. Cross-reference [ProAPI standards](/prodoc/proapi/api-standards) when validating reported gaps.
+  </Tab>
+</Tabs>
+
+## Prioritization framework
+
+Score each item using three dimensions:
+
+1. **Impact** — page traffic and funnel position (setup, auth, billing)
+2. **Severity** — sentiment, star rating, and comment urgency
+3. **Effort** — estimated MDX edit scope
+
+<Tip>
+Sort the ProFeed queue by negative sentiment on [top pages in ProInsights](/prodoc/proinsights/content-performance) to focus on high-traffic friction first.
+</Tip>
+
+## Response expectations
+
+| Priority | Target response | Example |
+| -------- | --------------- | ------- |
+| P0 | Same business day | Broken auth tutorial blocking production |
+| P1 | 3 business days | Missing prerequisite on integration guide |
+| P2 | Next sprint | Clarity improvement, low traffic page |
+
+Document resolution notes in the feedback detail view before marking **closed**. This audit trail helps future triage and quarterly reviews.
+
+## Governance
+
+Establish a weekly triage ritual: filter **open** items, assign owners via tags, and escalate blockers to doc leads. Connect outcomes to the [Documentation Intelligence Loop](/prodoc/platform-overview/ecosystem-overview) so leadership sees measurable improvement.
+
+## Related guides
+
+- [Feedback lifecycle](/prodoc/profeed/feedback-lifecycle)
+- [Feedback resolution process](/prodoc/profeed/feedback-resolution-process)
+- [Enable ProFeed feedback](/prodoc/prodoc/enable-profeed-feedback)

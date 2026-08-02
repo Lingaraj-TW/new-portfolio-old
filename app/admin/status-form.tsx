@@ -40,7 +40,7 @@ export function FeedbackStatusForm({
         name="status"
         defaultValue={status}
         disabled={pending}
-        className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+        className="rounded-md border border-border bg-card px-2 py-1 text-xs text-foreground disabled:opacity-60 dark:border-border dark:bg-muted"
       >
         {STATUSES.map((s) => (
           <option key={s} value={s}>
@@ -51,12 +51,14 @@ export function FeedbackStatusForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-md bg-zinc-900 px-2 py-1 text-[11px] font-medium text-white hover:bg-zinc-800 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+        className="rounded-md bg-accent px-2 py-1 text-[11px] font-medium text-accent-foreground hover:bg-accent/90 disabled:opacity-60"
       >
         {pending ? "Saving…" : "Save"}
       </button>
       {message ? (
-        <span className="text-[11px] text-rose-600 dark:text-rose-400">{message}</span>
+        <span className="text-[11px] text-rose-600 dark:text-rose-400">
+          {message}
+        </span>
       ) : null}
     </form>
   );

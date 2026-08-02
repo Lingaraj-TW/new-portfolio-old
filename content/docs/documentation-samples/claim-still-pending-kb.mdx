@@ -1,0 +1,121 @@
+---
+title: Why Is My Claim Still Pending?
+description: Knowledge-base article explaining common reasons a claim remains in pending status and what members and CSRs can do.
+nav_order: 11
+authors: [Linga Raj M]
+team: ProDoc
+tags: [claims, pending, knowledge-base, support]
+last_updated: March 2026
+category: Knowledge Base
+---
+
+# Why Is My Claim Still Pending?
+
+**Applies to:** Members, Customer Service Representatives  
+**Last reviewed:** March 2026
+
+If your claim has been in **Pending** status longer than expected, this article explains the most common reasons and what you can do.
+
+## Expected processing times
+
+| Claim type | Standard processing | Notes |
+| ---------- | ------------------- | ----- |
+| Clean claim (electronic) | 5–7 business days | No additional info needed |
+| Paper claim | 15–30 business days | Mailing and manual entry add time |
+| Claim requiring review | 10–15 business days | Medical necessity, out-of-network |
+| Appeal in progress | 30 calendar days | See [Appeals workflow](/prodoc/documentation-samples/implementation-appeals) |
+
+<Note title="Business days">
+Processing times are measured in business days (Monday–Friday, excluding federal holidays). Claims submitted on Friday evening may not enter processing until the following Monday.
+</Note>
+
+## Common reasons for pending status
+
+### 1. Missing or incomplete information
+
+The most common cause. The claim may be waiting for:
+
+- **Provider tax ID (TIN)** — Does not match our provider directory
+- **Diagnosis codes (ICD-10)** — Missing or incompatible with procedure codes
+- **Prior authorization number** — Required for certain procedures but not included
+- **Member ID mismatch** — ID on the claim does not match enrollment records
+
+**What you can do:** Check the claim details in the member portal under **My Claims**. If a document request appears, upload the requested information promptly.
+
+### 2. Coordination of Benefits (COB)
+
+If you have coverage through more than one plan (e.g., your plan and a spouse's plan), we must determine which plan pays first. This process adds 5–10 business days.
+
+**What you can do:** Ensure your COB information is up to date in the member portal under **Profile → Other Coverage**. Upload your other plan's Explanation of Benefits (EOB) if requested.
+
+### 3. Provider verification
+
+We may need to verify that the provider was in-network and credentialed on the date of service. This is common for:
+
+- New providers not yet in our directory
+- Out-of-network claims requiring additional review
+- Providers with recently updated credentials
+
+**What you can do:** No action needed from you unless we send a document request. Processing typically resumes within 3–5 business days.
+
+### 4. Duplicate claim check
+
+When a similar claim was recently submitted, our system holds the new claim for duplicate review. This prevents double payment but adds 2–3 business days.
+
+**What you can do:** If you intentionally resubmitted a corrected claim, no action is needed. The system will release it after review.
+
+### 5. System processing backlog
+
+During peak periods (January enrollment changes, year-end), processing volumes increase and timelines may extend by 2–5 business days.
+
+**What you can do:** Check the **System Status** page for any active processing delays. No individual action required.
+
+## How to check your claim status
+
+1. Log in to the member portal
+2. Navigate to **My Claims**
+3. Select the claim to view its timeline and current status
+4. Look for any **Action Required** banners indicating missing information
+
+<Screenshot
+  alt="Claim detail page showing timeline with Pending status and action required banner"
+  caption="The claim timeline shows each processing step and any holds."
+/>
+
+## When to contact Member Services
+
+Contact us if:
+
+- Your claim has been pending for **more than 30 business days** (electronic) or **45 business days** (paper)
+- You received a document request but are unsure what to provide
+- The claim status has not changed in **14 or more business days**
+- You believe the claim was submitted incorrectly and need to resubmit
+
+**Member Services:** 1-800-555-0142 (Mon–Fri, 8 AM – 8 PM ET)
+
+When calling, have your **member ID** and **claim number** ready.
+
+## For Customer Service Representatives
+
+| Pending reason code | Description | CSR action |
+| ------------------- | ----------- | ---------- |
+| `PND-001` | Missing diagnosis codes | Request corrected claim from provider |
+| `PND-002` | COB review in progress | Verify other coverage on file |
+| `PND-003` | Provider verification | Escalate to Provider Relations if &gt; 5 days |
+| `PND-004` | Duplicate check | Review original claim; release or deny |
+| `PND-005` | Prior auth required | Check auth system; request retro auth if eligible |
+| `PND-006` | Manual review queue | Note estimated review date for member |
+
+<Tip title="Set expectations">
+Always provide the member with the specific pending reason and estimated resolution date from the claim timeline. Avoid generic "still processing" responses.
+</Tip>
+
+## Related articles
+
+- [How to Submit a Grievance Form](/prodoc/documentation-samples/how-to-submit-grievance)
+- [Implementing Appeals Management Workflow](/prodoc/documentation-samples/implementation-appeals)
+- [Release Notes v5.4.0](/prodoc/documentation-samples/release-notes-v5-4-0)
+
+---
+
+[← Back to documentation samples](/prodoc/documentation-samples)

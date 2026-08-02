@@ -1,0 +1,20 @@
+/* ── ProDoc documentation portal — layout shell (colors in app/styles/theme.css) ── */
+
+body:has(.docs-portal-root) .app-bg,
+body:has(.docs-portal-root) .mobile-bottom-nav {
+  display: none !important;
+}
+
+body:has(.docs-portal-root) .app-shell {
+  min-height: 100vh;
+  padding: 0;
+}
+
+body:has(.docs-portal-root) .page-fade-in {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+.docs-portal-root .docs-navbar {
+  box-shadow: none;
+}

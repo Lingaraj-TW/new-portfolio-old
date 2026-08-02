@@ -1,0 +1,70 @@
+---
+title: API catalog
+description: Registry structure, metadata fields, and discovery patterns for ProAPI services.
+nav_order: 3
+authors: [Linga Raj M]
+team: ProAPI
+tags: [proapi, catalog, discovery, registry]
+last_updated: March 2026
+---
+
+# API catalog
+
+The ProAPI catalog is the authoritative registry of services, versions, and ownership. Partner engineers use it to discover capabilities; platform teams use it to prevent duplication and track deprecation.
+
+## Catalog entry structure
+
+Each registered API includes:
+
+| Field | Description |
+| ----- | ----------- |
+| `service_id` | Stable identifier (e.g., `feedback-v1`) |
+| `display_name` | Human-readable title |
+| `version` | Semver or date-based label |
+| `status` | `draft`, `beta`, `ga`, `deprecated`, `retired` |
+| `owner_team` | Slack channel or email alias |
+| `openapi_url` | Link to machine-readable spec |
+| `doc_path` | ProDoc reference path (`/prodoc/proapi/...`) |
+
+```json
+{
+  "service_id": "feedback-v1",
+  "display_name": "ProFeed Feedback API",
+  "version": "1.2.0",
+  "status": "ga",
+  "owner_team": "ProFeed",
+  "doc_path": "/prodoc/apis/overview"
+}
+```
+
+## Discovery patterns
+
+<Tabs defaultValue="browse">
+  <Tab label="Browse by domain" value="browse">
+    Catalog groups APIs by product area—ProFeed, ProInsights, platform utilities—matching the [ecosystem map](/prodoc/platform-overview/ecosystem-overview).
+  </Tab>
+  <Tab label="Search" value="search">
+    [ProAssist AI search](/prodoc/proassist/ai-search-experience) indexes catalog metadata. Query "feedback API endpoints" for cited results.
+  </Tab>
+  <Tab label="Filter by status" value="filter">
+    Partner integrations should target **ga** APIs only. **beta** requires explicit opt-in; **deprecated** shows sunset dates.
+  </Tab>
+</Tabs>
+
+<Tip>
+When onboarding a new service, register the catalog entry before merging reference docs. Empty catalog rows create discovery gaps that show up in [search analytics](/prodoc/proinsights/search-analytics).
+</Tip>
+
+## Deprecation visibility
+
+Deprecated APIs remain in the catalog with:
+
+- Sunset date and migration guide link
+- Successor `service_id` and version
+- Changelog entry in [ProDoc updates](/prodoc/updates/overview)
+
+## Related guides
+
+- [API governance](/prodoc/proapi/api-governance)
+- [Versioning strategy](/prodoc/proapi/versioning-strategy)
+- [APIs & Integrations](/prodoc/apis/overview)

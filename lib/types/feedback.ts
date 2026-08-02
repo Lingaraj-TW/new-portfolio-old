@@ -5,12 +5,17 @@ export type HighlightEntry =
       kind: "text";
       quote: string;
       note?: string;
+      /** Heading id when selection maps to a section */
+      anchorId?: string;
+      startOffset?: number;
+      endOffset?: number;
     }
   | {
       kind: "pin";
       xPct: number;
       yPct: number;
       note?: string;
+      anchorId?: string;
     };
 
 export type FeedbackRow = {
@@ -22,6 +27,10 @@ export type FeedbackRow = {
   star_rating: number | null;
   tagged_author: string | null;
   tagged_team: string | null;
+  tagged_authors?: string[] | null;
+  tagged_teams?: string[] | null;
+  voice_transcript?: string | null;
+  submitted_by?: string | null;
   highlights: HighlightEntry[] | unknown;
   status: FeedbackStatus;
   visitor_session: string | null;

@@ -1,0 +1,88 @@
+---
+title: Authoring and publishing
+description: MDX workflow, frontmatter, sidebar navigation, and /prodoc URLs in this repo.
+nav_order: 2
+authors:
+  - Linga Raj M
+team: ProDoc
+---
+
+# Authoring and publishing
+
+ProDoc in this repository is a **docs-as-code** system: writers edit MDX files in Git, and Next.js renders them at `/prodoc/...`.
+
+## Content location
+
+All documentation lives under `content/docs/`:
+
+```
+content/docs/
+  getting-started/intro.mdx
+  samples/how-i-work.mdx
+  prodoc/overview.mdx
+  ...
+```
+
+Each file becomes a URL slug. For example, `content/docs/prodoc/overview.mdx` → `/prodoc/prodoc/overview`.
+
+Index pages use `folder/index.mdx` and resolve to `/prodoc/folder` (for example, `samples/index.mdx` → `/prodoc/samples`).
+
+## Frontmatter schema
+
+Every MDX file starts with YAML frontmatter:
+
+```yaml
+---
+title: Page title
+description: Short summary for metadata and page intro
+nav_order: 1
+authors:
+  - Linga Raj M
+team: ProDoc
+---
+```
+
+| Field | Required | Purpose |
+| ----- | -------- | ------- |
+| `title` | Yes | Sidebar label and page heading source |
+| `description` | No | Shown below the title on the rendered page |
+| `nav_order` | No | Sort order within nav group (default `0`) |
+| `authors` | No | Author tags for feedback routing |
+| `team` | No | Team tag for feedback routing |
+
+## Sidebar navigation
+
+Navigation is **auto-generated** from the filesystem — no hand-edited sidebar file.
+
+- Files are grouped by first path segment (`tutorials`, `samples`, `prodoc`, etc.)
+- Group order is defined in `lib/docs/paths.ts` (`preferred` array)
+- Within each group, pages sort by `nav_order`, then title
+
+## Adding a new page
+
+1. Create `content/docs/your-section/your-page.mdx` with frontmatter.
+2. Run `npm run dev` and open `/prodoc/your-section/your-page`.
+3. Confirm the page appears in the sidebar under the correct group.
+4. Use `/prodoc/...` in internal cross-links (public URL; rewrites to `/docs/...` internally).
+
+## MDX features
+
+The compile pipeline (`lib/mdx/compile-doc.tsx`) enables:
+
+- GitHub Flavored Markdown (tables, task lists)
+- Auto-generated heading IDs and anchor links
+- Mermaid diagrams (where supported in content)
+- Prose styling via Tailwind Typography
+
+## Public URLs
+
+| Context | URL pattern |
+| ------- | ----------- |
+| Same Next.js app (default) | `/prodoc/{slug}` |
+| Separate docs deploy | Set `NEXT_PUBLIC_PRODOC_URL` → links use `{base}/docs/{slug}` |
+
+Helpers in `lib/prodoc-urls.ts` (`docPageHref`, `getSamplesEntryHref`, `getEcosystemEntryHref`) keep links consistent across portfolio CTAs and layouts.
+
+## Feedback integration
+
+Every rendered doc page includes the ProFeed widget. Readers can attach feedback to the page or a specific heading anchor — see [Enable ProFeed feedback](/prodoc/prodoc/enable-profeed-feedback).

@@ -1,0 +1,58 @@
+---
+title: Feedback dashboard overview
+description: Navigate the ProFeed admin dashboard, filters, detail views, and customer portal.
+nav_order: 6
+authors: [Linga Raj M]
+team: ProFeed
+tags: [profeed, dashboard, admin, portal]
+last_updated: March 2026
+---
+
+# Feedback dashboard overview
+
+The ProFeed dashboard at [/profeed](/profeed) is the operational hub for reviewing, filtering, and acting on reader feedback. This guide covers the main UI surfaces and how they connect to the broader [ProDocs Ecosystem](/prodoc/platform-overview/ecosystem-overview).
+
+## Admin dashboard
+
+The primary queue displays feedback rows with page path, sentiment, status, tags, and submission timestamp.
+
+### Key actions
+
+| Action | Access | Purpose |
+| ------ | ------ | ------- |
+| Filter | All users | Narrow by status, page, team, writer, stars |
+| Details | All users | Full message, highlights, voice transcript, attachments |
+| View live doc | All users | Open published page at section anchor |
+| Edit on GitHub | Admin only | Jump to MDX source in GitHub editor |
+| Update status | Admin only | Move through open → triaged → closed |
+
+<Tip>
+Bookmark filtered views for your team—for example, `status:open + team:ProAPI`—and review them in weekly triage standups.
+</Tip>
+
+## Detail view
+
+Navigate to `/profeed/feedback/{id}` for the complete submission record:
+
+- Rich-text message and star rating
+- Section highlights pinned to the page
+- Attachment downloads via signed URLs (when `SUPABASE_SERVICE_ROLE_KEY` is configured)
+- Status history and admin actions
+
+## Customer portal
+
+[/profeed/portal](/profeed/portal/login) provides stakeholders a read-only card view of feedback trends. **Edit on GitHub** remains disabled unless signed in as admin—consistent with the permission model in [Feedback status workflow](/prodoc/profeed/feedback-status-workflow).
+
+<Collapse title="Demo mode without Supabase">
+When Supabase credentials are not configured, the dashboard may show limited or sample data. Connect `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for live submissions. See [Enable ProFeed feedback](/prodoc/prodoc/enable-profeed-feedback).
+</Collapse>
+
+## Dashboard → analytics handoff
+
+Closed items and ongoing sentiment feed [ProInsights](/proinsights). Pair the ProFeed queue with [Feedback trends](/prodoc/proinsights/feedback-trends) to prioritize pages that need attention before they accumulate large backlogs.
+
+## Related guides
+
+- [ProFeed overview](/prodoc/profeed/overview)
+- [Triage workflow](/prodoc/profeed/triage-workflow)
+- [Documentation analytics](/prodoc/proinsights/documentation-analytics)

@@ -1,10 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { Geist_Mono, Inter, Syne } from "next/font/google";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+import { ProDocAssistant } from "@/components/assistant/ProDocAssistant";
+import { AppBackground } from "@/components/layout/AppBackground";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
+import { PageFadeIn } from "@/components/shared/PageFadeIn";
+import { ThemeBootstrapScript } from "@/components/theme/ThemeBootstrapScript";
+import "./globals.css";
+import { DEFAULT_THEME } from "@/lib/theme";
+
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600"],
+});
+
+const syne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -13,9 +29,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Linga Raj M · Technical Writer & ProDoc",
+  title: {
+    default: "ProDoc — Documentation Platform",
+    template: "ProDoc | %s",
+  },
   description:
-    "Portfolio-ready documentation with customer feedback: stars, highlights, attachments, and triage dashboards powered by Supabase.",
+    "Documentation intelligence platform — ProDoc, ProAssist, ProFeed, ProInsights, and ProAPI. Built by Linga Raj M, Documentation Platform Strategist.",
+  icons: {
+    icon: [{ url: "/favicon.png", type: "image/png" }],
+    apple: [{ url: "/favicon.png", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({
@@ -26,10 +49,17 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${DEFAULT_THEME} ${inter.variable} ${syne.variable} ${geistMono.variable} h-full`}
+      suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col bg-zinc-50 text-zinc-950 dark:bg-black dark:text-zinc-50">
-        {children}
+      <body className="flex min-h-full flex-col">
+        <ThemeBootstrapScript />
+        <AppBackground />
+        <div className="app-shell">
+          <PageFadeIn>{children}</PageFadeIn>
+          <MobileBottomNav />
+          <ProDocAssistant />
+        </div>
       </body>
     </html>
   );

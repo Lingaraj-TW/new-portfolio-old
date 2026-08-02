@@ -1,0 +1,67 @@
+---
+title: Versioning strategy
+description: Semantic versioning, deprecation windows, and migration guidance for ProAPI consumers.
+nav_order: 5
+authors: [Linga Raj M]
+team: ProAPI
+tags: [proapi, versioning, deprecation, semver]
+last_updated: March 2026
+---
+
+# Versioning strategy
+
+ProAPI uses semantic versioning to communicate compatibility expectations. Partner engineers rely on version labels in the [API catalog](/prodoc/proapi/api-catalog) to plan upgrades without surprise breakages.
+
+## Version scheme
+
+| Change type | Version bump | Example |
+| ----------- | ------------ | ------- |
+| Backward-compatible addition | Minor (`1.1.0`) | New optional query param |
+| Bug fix, no contract change | Patch (`1.0.1`) | Error message clarity |
+| Breaking change | Major (`2.0.0`) | Removed field, renamed endpoint |
+
+Breaking changes include: removing fields, changing types, altering auth requirements, or renaming URLs.
+
+## URL and header versioning
+
+<Tabs defaultValue="url">
+  <Tab label="URL path" value="url">
+    Preferred for major versions: `/api/v1/feedback`, `/api/v2/feedback`. Document migration paths in dedicated upgrade guides.
+  </Tab>
+  <Tab label="Header" value="header">
+    `Accept-Version: 2026-03-01` for date-stamped releases. Useful when URL stability matters for long-lived integrations.
+  </Tab>
+</Tabs>
+
+## Deprecation policy
+
+```mermaid
+gantt
+  title Deprecation timeline
+  dateFormat YYYY-MM-DD
+  section v1
+  GA support           :2026-01-01, 180d
+  Deprecation notice   :2026-06-01, 90d
+  Sunset               :2026-09-01, 1d
+```
+
+Minimum deprecation window: **90 days** for GA APIs. Beta APIs may deprecate with 30 days notice.
+
+<Warning>
+Retire versions only after catalog status moves to `retired`, reference docs redirect to successors, and [ProInsights search analytics](/prodoc/proinsights/search-analytics) show negligible traffic on deprecated endpoints.
+</Warning>
+
+## Migration documentation
+
+Every major release ships:
+
+1. Changelog with breaking diffs
+2. Step-by-step migration guide in ProDoc
+3. Updated OpenAPI spec in the catalog
+4. Sample code for common SDK patterns
+
+## Related guides
+
+- [API governance](/prodoc/proapi/api-governance)
+- [API standards](/prodoc/proapi/api-standards)
+- [ProDocs Ecosystem Overview](/prodoc/platform-overview/ecosystem-overview)

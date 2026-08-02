@@ -1,0 +1,94 @@
+---
+title: Setup ProDoc
+description: Run the docs experience locally and verify `/prodoc/...` renders MDX.
+nav_order: 1
+authors:
+  - Linga Raj M
+team: ProDoc
+---
+
+# Setup ProDoc
+
+## What you'll do
+
+- Clone and install the Next.js app
+- Configure environment variables
+- Start the dev server
+- Verify docs render at `/prodoc/...`
+- Add a test MDX page
+
+## Prerequisites
+
+- Node.js 20+ and npm
+- Git
+
+## Steps
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/lingaraj-tw/prodoc.git
+cd prodoc
+npm install
+```
+
+### 2. Configure environment
+
+Copy the example env file and set Supabase credentials (optional for docs-only preview):
+
+```bash
+cp .env.example .env.local
+```
+
+Minimum for local docs rendering (no feedback persistence):
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+PRODOC_ALLOWED_ORIGINS=http://localhost:3000
+```
+
+See `.env.example` for optional keys (`SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_PRODOC_URL`).
+
+### 3. Start the dev server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000/prodoc/getting-started/intro](http://localhost:3000/prodoc/getting-started/intro).
+
+### 4. Verify rendering
+
+Confirm the following:
+
+- Sidebar lists nav groups (Getting Started, Samples, Platform Overview, etc.)
+- MDX prose renders with headings, tables, and code blocks
+- Visiting `/prodoc` redirects to the ecosystem overview
+- The feedback widget appears in the bottom-right corner
+
+### 5. Add a test page
+
+Create `content/docs/tutorials/my-test-page.mdx`:
+
+```mdx
+---
+title: My test page
+description: Verification page for local ProDoc setup.
+nav_order: 99
+authors:
+  - Your Name
+team: ProDoc
+---
+
+# My test page
+
+If you can read this at `/prodoc/tutorials/my-test-page`, your setup works.
+```
+
+Refresh the browser — the page should appear under **Tutorials** in the sidebar.
+
+## Next steps
+
+- [Enable ProFeed feedback](/prodoc/prodoc/enable-profeed-feedback)
+- [Authoring and publishing](/prodoc/prodoc/authoring-and-publishing)

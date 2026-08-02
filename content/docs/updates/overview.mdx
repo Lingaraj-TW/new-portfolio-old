@@ -1,0 +1,46 @@
+---
+title: Updates
+description: A public-facing layer for ProFeed releases and community highlights.
+nav_order: 1
+authors:
+  - Linga Raj M
+team: ProFeed
+---
+
+# Updates (ProFeed public layer)
+
+Release notes and improvement highlights for the ProFeed feedback system.
+
+## Release 2026.05.0 · Rich feedback
+
+### Highlights
+
+- **Rich text messages** — feedback comments support formatted HTML from the message editor
+- **Text highlights** — readers can pin selected passages to their feedback submission
+- **File attachments** — screenshots, PDFs, and text files attach to feedback items (requires service role)
+- **Section anchors** — feedback links to specific heading IDs on doc pages
+
+### Customer impact
+
+Documentation teams receive precise, contextual feedback instead of page-level "this is wrong" comments. Triage admins see highlights and attachments inline, reducing back-and-forth with readers.
+
+### Upgrade notes
+
+1. Apply migration `004_profeed_rich_feedback.sql` in Supabase
+2. Set `SUPABASE_SERVICE_ROLE_KEY` in server environment for attachment uploads
+3. Restart the Next.js app to pick up API route changes
+4. Verify by submitting feedback with a highlight and attachment on any `/prodoc/...` page
+
+### Known issues
+
+- Attachment uploads limited to configured storage bucket size
+- Rich text sanitization strips unsupported HTML tags for security
+
+### Documentation
+
+- [Enable ProFeed feedback](/prodoc/prodoc/enable-profeed-feedback)
+- [Triage workflow](/prodoc/profeed/triage-workflow)
+
+---
+
+Future releases will be published here. Community feedback highlights from ProFeed may also appear in this section.

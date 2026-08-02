@@ -1,0 +1,27 @@
+---
+title: Troubleshooting
+description: Common issues when feedback or analytics aren’t behaving as expected.
+nav_order: 1
+authors:
+  - Linga Raj M
+team: ProDocs Ecosystem
+---
+
+# Troubleshooting
+
+## Feedback not captured
+
+- Confirm you're on a `/prodoc/...` page (the widget only renders there).
+- Confirm Supabase env vars are configured.
+- Check allowed origins if posting cross-domain.
+
+## Analytics not showing
+
+- Ensure feedback rows exist (submit a test feedback).
+- Confirm your ProInsights page loads and can query the database.
+
+## API integration issues
+
+- Ensure `/api/feedback` is reachable from the docs domain.
+- If attachments/edit flows are needed, configure the service role key.
+

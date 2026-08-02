@@ -1,0 +1,139 @@
+/**
+ * ProDocs design tokens — primitives extracted from the landing page.
+ * Source of truth: app/globals.css cosmic purple-pink palette.
+ * Do not add new colors; extend only from existing brand values.
+ */
+
+:root {
+  /* ── Brand primaries ── */
+  --pds-purple-500: #9333ea;
+  --pds-purple-600: #7c22ce;
+  --pds-purple-400: #a855f7;
+  --pds-purple-300: #c084fc;
+  --pds-purple-200: #e879f9;
+  --pds-pink-500: #ec4899;
+  --pds-pink-600: #c2185b;
+
+  /* ── Dark surfaces ── */
+  --pds-ink-950: #09080f;
+  --pds-ink-900: #110f1c;
+  --pds-ink-850: #1a1628;
+  --pds-ink-800: #201c30;
+  --pds-ink-700: #070610;
+
+  /* ── Dark text ── */
+  --pds-text-dark-primary: #fdf4ff;
+  --pds-text-dark-secondary: #c4b5d4;
+  --pds-text-dark-tertiary: #7c6d8f;
+
+  /* ── Light surfaces ── */
+  --pds-surface-light: #fdfaff;
+  --pds-surface-light-secondary: #f8f6fc;
+  --pds-surface-light-tertiary: #f2edfa;
+  --pds-surface-light-footer: #f5f3fa;
+
+  /* ── Light text ── */
+  --pds-text-light-primary: #1a0a2e;
+  --pds-text-light-secondary: #4a3566;
+  --pds-text-light-tertiary: #7c6d9a;
+
+  /* ── Alpha overlays (dark theme) ── */
+  --pds-border-dark: rgba(255, 255, 255, 0.06);
+  --pds-border-dark-strong: rgba(255, 255, 255, 0.1);
+  --pds-border-dark-hover: rgba(255, 255, 255, 0.14);
+  --pds-accent-glow-dark: rgba(147, 51, 234, 0.2);
+  --pds-pink-glow-dark: rgba(236, 72, 153, 0.15);
+  --pds-ring-dark: rgba(147, 51, 234, 0.5);
+  --pds-nav-dark: rgba(9, 8, 15, 0.85);
+
+  /* ── Alpha overlays (light theme) ── */
+  --pds-border-light: rgba(0, 0, 0, 0.07);
+  --pds-border-light-strong: rgba(0, 0, 0, 0.12);
+  --pds-border-light-hover: rgba(0, 0, 0, 0.16);
+  --pds-accent-glow-light: rgba(124, 34, 206, 0.15);
+  --pds-pink-glow-light: rgba(194, 24, 91, 0.15);
+  --pds-ring-light: rgba(124, 34, 206, 0.5);
+  --pds-nav-light: rgba(253, 250, 255, 0.88);
+
+  /* ── Typography ── */
+  --pds-font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --pds-font-display: var(--font-syne), var(--font-inter), ui-sans-serif,
+    system-ui, sans-serif;
+  --pds-font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular,
+    monospace;
+
+  --pds-text-xs: 0.75rem;
+  --pds-text-sm: 0.875rem;
+  --pds-text-base: 1rem;
+  --pds-text-lg: 1.125rem;
+  --pds-text-xl: 1.25rem;
+  --pds-text-2xl: 1.5rem;
+  --pds-text-3xl: 1.875rem;
+  --pds-text-4xl: 2.25rem;
+
+  --pds-weight-normal: 400;
+  --pds-weight-medium: 500;
+  --pds-weight-semibold: 600;
+  --pds-weight-bold: 700;
+
+  --pds-tracking-tight: -0.02em;
+  --pds-tracking-wide: 0.05em;
+  --pds-tracking-wider: 0.2em;
+  --pds-tracking-widest: 0.3em;
+
+  /* ── Radius (from homepage panels/cards) ── */
+  --pds-radius-sm: 0.625rem;
+  --pds-radius-md: 0.75rem;
+  --pds-radius-lg: 1rem;
+  --pds-radius-xl: 1.25rem;
+  --pds-radius-full: 9999px;
+
+  /* ── Spacing scale ── */
+  --pds-space-1: 0.25rem;
+  --pds-space-2: 0.5rem;
+  --pds-space-3: 0.75rem;
+  --pds-space-4: 1rem;
+  --pds-space-5: 1.25rem;
+  --pds-space-6: 1.5rem;
+  --pds-space-8: 2rem;
+  --pds-space-10: 2.5rem;
+  --pds-space-12: 3rem;
+
+  /* ── Shadows ── */
+  --pds-shadow-panel-dark: 0 12px 40px rgba(0, 0, 0, 0.28);
+  --pds-shadow-panel-sm-dark: 0 4px 16px rgba(0, 0, 0, 0.18);
+  --pds-shadow-panel-light: 0 1px 2px rgba(26, 10, 46, 0.04),
+    0 10px 32px rgba(124, 34, 206, 0.06);
+  --pds-shadow-panel-sm-light: 0 1px 2px rgba(26, 10, 46, 0.04),
+    0 4px 14px rgba(124, 34, 206, 0.05);
+  --pds-shadow-logo-light: 0 2px 10px rgba(124, 34, 206, 0.24),
+    0 1px 4px rgba(124, 34, 206, 0.14);
+  --pds-shadow-logo-dark: 0 0 16px rgba(147, 51, 234, 0.45),
+    0 0 6px rgba(236, 72, 153, 0.22);
+
+  /* ── Docs layout ── */
+  --pds-docs-navbar-height: 3.75rem;
+  --pds-docs-sidebar-width: 17.5rem;
+  --pds-docs-content-max: 48rem;
+
+  /* ── Semantic callouts (brand-tinted, not generic blue) ── */
+  --pds-callout-note-border: rgba(124, 34, 206, 0.35);
+  --pds-callout-note-bg: rgba(124, 34, 206, 0.06);
+  --pds-callout-tip-border: rgba(147, 51, 234, 0.4);
+  --pds-callout-tip-bg: rgba(147, 51, 234, 0.08);
+  --pds-callout-info-border: rgba(194, 24, 91, 0.35);
+  --pds-callout-info-bg: rgba(194, 24, 91, 0.06);
+  --pds-callout-warning-border: rgba(245, 158, 11, 0.45);
+  --pds-callout-warning-bg: rgba(245, 158, 11, 0.08);
+  --pds-callout-danger-border: rgba(239, 68, 68, 0.45);
+  --pds-callout-danger-bg: rgba(239, 68, 68, 0.08);
+}
+
+html.dark {
+  --pds-callout-note-border: rgba(168, 85, 247, 0.4);
+  --pds-callout-note-bg: rgba(147, 51, 234, 0.1);
+  --pds-callout-tip-border: rgba(192, 132, 252, 0.45);
+  --pds-callout-tip-bg: rgba(147, 51, 234, 0.12);
+  --pds-callout-info-border: rgba(236, 72, 153, 0.4);
+  --pds-callout-info-bg: rgba(236, 72, 153, 0.1);
+}
